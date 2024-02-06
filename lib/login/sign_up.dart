@@ -12,10 +12,15 @@ class _Sign_upState extends State<Sign_up> {
   final username = TextEditingController();
   final password = TextEditingController();
   final rePassword = TextEditingController();
-  final lang = TextEditingController();
   final email = TextEditingController();
   bool _isChecked = false;
   final ScrollController _scrollController = ScrollController();
+
+
+
+  String dropdownValue = 'English';
+
+  final List<String> dropdownOptions = ['English', 'Persian', 'German','French','Spanish','Arabic'];
 
   String error = '';
   @override
@@ -26,9 +31,8 @@ class _Sign_upState extends State<Sign_up> {
   }
 
   void sendData(){
-    bool flag = false;
     String err = '';
-    if(username.text == '' || password.text == ''|| rePassword.text == '' || lang.text == '' || email.text == ''){
+    if(username.text == '' || password.text == ''|| rePassword.text == '' || email.text == ''){
       err = 'All fields are required';
     }else if (password.text != rePassword.text) {
       err = 'password doesn\'t match';
@@ -99,16 +103,39 @@ class _Sign_upState extends State<Sign_up> {
               const SizedBox(
                 height: 25,
               ),
-              TextField(
-                controller: lang,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'mother tongue (in english)',
+              const Row(
+                children: [
+                  Text('mother tongue'),
+                  Icon(Icons.arrow_circle_down),
+                ],
+              ),
+              DropdownButton<String>(
+                borderRadius:BorderRadius.all(Radius.circular(5)),
+                isExpanded: true,
+                value: dropdownValue,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize:  24,
+                elevation:  100,
+                style: const TextStyle(color: Colors.black),
+                underline: Container(
+                  height:  1,
+                  color: Colors.black45,
                 ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValue = newValue!;
+                  });
+                },
+                items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               const SizedBox(
-                height: 25,
-              ),
+                  height: 25,
+                ),
               TextField(
                 controller: email,
                 textAlign: TextAlign.center,
@@ -116,7 +143,7 @@ class _Sign_upState extends State<Sign_up> {
                   labelText: 'email',
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 25,
               ),
               Row(
