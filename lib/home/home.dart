@@ -21,6 +21,11 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
+      body:Column(
+        children: [
+          FilledButton(onPressed: (){Navigator.pushNamed(context, '/new_word');}, child: Text("new word"))
+        ],
+      )
     );
   }
 }
