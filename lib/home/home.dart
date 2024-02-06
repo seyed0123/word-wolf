@@ -17,13 +17,14 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text('Word Wolf'),
-            FilledButton(onPressed: (){Navigator.pushNamed(context, '/login');}, child: Text("login"))
+            FilledButton(onPressed: (){Navigator.pushNamed(context, '/login');}, child: const Text("login"))
           ],
         ),
       ),
       body:Column(
         children: [
-          FilledButton(onPressed: (){Navigator.pushNamed(context, '/new_word');}, child: Text("new word"))
+          FilledButton(onPressed: (){Navigator.pushNamed(context, '/new_word');}, child: const Text("new word")),
+          FilledButton(onPressed: (){Navigator.pushNamed(context, '/word_list');}, child: const Text("word list"))
         ],
       )
     );

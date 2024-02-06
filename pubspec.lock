@@ -115,6 +115,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
+  percent_indicator:
+    dependency: "direct main"
+    description:
+      name: percent_indicator
+      sha256: c37099ad833a883c9d71782321cb65c3a848c21b6939b6185f0ff6640d05814c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.3"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -186,3 +194,4 @@ packages:
     version: "0.3.0"
 sdks:
   dart: ">=3.2.2 <4.0.0"
+  flutter: ">=2.12.0"
