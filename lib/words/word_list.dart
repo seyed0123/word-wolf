@@ -15,7 +15,7 @@ class _word_listState extends State<word_list> {
   List<Word> words = [];
 
   void getWords(){
-    words = [Word('hello','سلام','English',10),Word('hallo','سلام','German',75),Word('سلام','سلام','Arabic',100),Word('Bonjour','سلام','French',30),Word('Hola','سلام','Spanish',60)];
+    words = [Word('1','hello','سلام','English',10),Word('2','hallo','سلام','German',75),Word('3','سلام','سلام','Arabic',100),Word('4','Bonjour','سلام','French',30),Word('5','Hola','سلام','Spanish',60)];
   }
 
 
@@ -24,6 +24,14 @@ class _word_listState extends State<word_list> {
     int green = (255 * progress).floor();
     int blue = (1024 * ( -1*(progress-1)*(progress) )).floor();
     return Color.fromRGBO(red, green,  blue,  1);
+  }
+  void deleteWord(String id){
+    for(var i = 0 ; i < words.length ; i++){
+      if(words[i].ID == id){
+        words.removeAt(i);
+      }
+    }
+    setState(() {});
   }
 
   @override
@@ -87,6 +95,7 @@ class _word_listState extends State<word_list> {
                     Text(word.meaning),
                   ],
                 ),
+                 IconButton(onPressed: (){deleteWord(word.ID);}, icon: const Icon(Icons.delete_forever))
                 ],
               ),
             );

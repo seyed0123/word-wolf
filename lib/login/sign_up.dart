@@ -57,10 +57,10 @@ class _Sign_upState extends State<Sign_up> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Word Wolf')),
-      body: Padding(
-        padding: const EdgeInsets.all(50.0),
-        child:SingleChildScrollView(
-          controller: _scrollController,
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.all(50.0),
           child: Column(
             children: <Widget>[
               Text(
@@ -129,7 +129,18 @@ class _Sign_upState extends State<Sign_up> {
                 items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius:  10, // Adjust the radius as needed
+                          backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(value),
+                      ],
+                    ),
                   );
                 }).toList(),
               ),
@@ -183,7 +194,7 @@ class _Sign_upState extends State<Sign_up> {
               ),
             ],
           ),
-        )
+        ),
       )
     );
   }

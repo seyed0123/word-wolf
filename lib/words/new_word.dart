@@ -150,7 +150,18 @@ class _new_wordState extends State<new_word> {
                 items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius:  10, // Adjust the radius as needed
+                          backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(value),
+                      ],
+                    ),
                   );
                 }).toList(),
               ),
