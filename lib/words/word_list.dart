@@ -15,8 +15,17 @@ class _word_listState extends State<word_list> {
   List<Word> words = [];
 
   void getWords(){
-    words = [Word('hello','سلام','English',0),Word('hallo','سلام','German',75),Word('سلام','سلام','Arabic',50),Word('Bonjour','سلام','French',30),Word('Hola','سلام','Spanish',60)];
+    words = [Word('hello','سلام','English',10),Word('hallo','سلام','German',75),Word('سلام','سلام','Arabic',100),Word('Bonjour','سلام','French',30),Word('Hola','سلام','Spanish',60)];
   }
+
+
+  Color getProgressColor(double progress) {
+    int red = (255 * (1-progress)).floor();
+    int green = (255 * progress).floor();
+    int blue = (1024 * ( -1*(progress-1)*(progress) )).floor();
+    return Color.fromRGBO(red, green,  blue,  1);
+  }
+
   @override
   void initState() {
     getWords();
@@ -42,17 +51,6 @@ class _word_listState extends State<word_list> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  LinearPercentIndicator(
-                    width: MediaQuery.of(context).size.width*0.25,
-                    animation: true,
-                    lineHeight: 20.0,
-                    animationDuration: 2000,
-                    percent: word.progress/100,
-                    leading: const Text("progress"),
-                    center: Text('${word.progress}%'),
-                    linearStrokeCap: LinearStrokeCap.roundAll,
-                    progressColor: Colors.blueAccent,
-                  ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -65,6 +63,17 @@ class _word_listState extends State<word_list> {
                     const SizedBox(width: 10),
                     Text(word.actualWord),
                   ],
+                ),
+              LinearPercentIndicator(
+                width: MediaQuery.of(context).size.width *  0.25,
+                animation: true,
+                lineHeight:  20.0,
+                animationDuration:  2000,
+                percent: word.progress /  100,
+                leading: const Text("progress"),
+                center: Text('${word.progress}%'),
+                linearStrokeCap: LinearStrokeCap.roundAll,
+                progressColor: getProgressColor(word.progress /  100),
                 ),
                 Row(
                   children: [
