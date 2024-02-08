@@ -39,6 +39,13 @@ class _word_listState extends State<word_list> {
     getWords();
     super.initState();
   }
+
+
+  Color hexToColor(String hexCode) {
+    final hexColor = hexCode;
+    return Color(int.parse('FF$hexColor', radix:  16));
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,8 +60,17 @@ class _word_listState extends State<word_list> {
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
               margin:const EdgeInsets.symmetric(vertical: 20,horizontal: 20),
               decoration:BoxDecoration(
-                color: Colors.grey[500], // Background color for the padding area
-                borderRadius: BorderRadius.circular(8.0), // Optional: Add rounded corners
+                border: Border.symmetric(vertical: BorderSide(width: 0.5),horizontal: BorderSide(width: 0.5)),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: hexToColor('DBE2EF'),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), // Shadow color
+                    spreadRadius:  5, // Spread radius
+                    blurRadius:  7, // Blur radius
+                    offset: Offset(0,  2), // Position of shadow
+                  ),
+                 ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

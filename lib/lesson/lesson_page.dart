@@ -18,7 +18,7 @@ class _Lesson_pageState extends State<Lesson_page> {
   late Lesson lesson;
 
   void getLesson(){
-      lesson = Lesson([Question('hey', ['1','2','3','4'], 3),Question('hallo', ['1','2','3','4'], 4),Question('hola', ['1','2','3','4'], 5)], [Word('1', 'yes', 'ja', 'English', 1),Word('1', 'ei', 'egg', 'German', 1)], 0, 0, 0);
+      lesson = Lesson([Question('hey', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3),Question('hallo', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 2),Question('hola',[Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3)], [Word('1', 'yes', 'ja', 'English', 1),Word('1', 'ei', 'egg', 'German', 1)]);
   }
 
   Color hexToColor(String hexCode) {
@@ -40,14 +40,9 @@ class _Lesson_pageState extends State<Lesson_page> {
     ),
   );
 
-  bool _isFlipped = false;
-
-  void _toggleCard() {
-    setState(() {
-      _isFlipped = !_isFlipped;
-    });
-  }
-
+  int chossen = -1;
+  String quesButtonText = "Submit";
+  int numAns = 0;
   @override
   void initState() {
     getLesson();
@@ -82,13 +77,13 @@ class _Lesson_pageState extends State<Lesson_page> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 FlipCard(
-                  fill: Fill.none, // Fill the back side of the card to make in the same size as the front.
+                  fill: Fill.back, // Fill the back side of the card to make in the same size as the front.
                   direction: Axis.horizontal, // default
                   initialSide: CardSide.front, // The side to initially display.
                   front: Container(
                     color: hexToColor('3F72AF'),
-                    width: 400,
-                    height: 400,
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.4,
                     child: Center(
                         child:Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -107,15 +102,15 @@ class _Lesson_pageState extends State<Lesson_page> {
                   ),
                   back: Container(
                     color: hexToColor('3F72AF'),
-                    width: 400,
-                    height: 400,
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.4,
                     child: Center(
                         child:Text(lesson.words[lesson.numWord].meaning)
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 100,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.05,
                 ),
                 FilledButton(onPressed: () {
                   lesson.numWord+=1;
@@ -130,7 +125,82 @@ class _Lesson_pageState extends State<Lesson_page> {
               ],
             ),
           )
-        : Container(),
+        : Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
+          margin:const EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+          decoration:BoxDecoration(
+            color: hexToColor('DBE2EF'),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5), // Shadow color
+                spreadRadius:  5, // Spread radius
+                blurRadius:  7, // Blur radius
+                offset: const Offset(0,  2), // Position of shadow
+              ),
+            ],
+          ),
+        child: Center(
+          child: Column(
+            children: [
+              Text(lesson.questions[lesson.numQues].question),
+              const SizedBox(
+                height: 50,
+              ),
+              Column(
+                children:lesson.questions[lesson.numQues].answers.map((e) {
+                    e.num = numAns;
+                    numAns+=1;
+                    return Container(
+                      margin: EdgeInsets.all(5),
+                      child: TextButton(onPressed: (){
+                        e.chossen = 1 ;
+                        if(chossen != -1){
+                          lesson.questions[lesson.numQues].answers[chossen].chossen=0;
+                        }
+                        chossen = e.num;
+                        setState(() {});
+                      },
+                        style: TextButton.styleFrom(
+                          backgroundColor: e.chossen==1 ? hexToColor('ECB159'): e.chossen==0 ? hexToColor('F9F7F7') : e.chossen==2 ? hexToColor('9B4444'):hexToColor('74E291'),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10), // Rounded corners
+                          ),
+                        ),
+                        child: Container(
+                          margin: EdgeInsets.all(10),
+                          padding: EdgeInsets.all(20),
+                          child: Text(e.text),
+                      )),
+                    );
+                  }).toList(),
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              FilledButton(
+                onPressed: () {
+                  if(quesButtonText=='Next')
+                  {
+                    lesson.numQues += 1;
+                    lesson.addProgress();
+                    quesButtonText = "Submit";
+                    setState(() {});
+                  }else{
+                    if(chossen != lesson.questions[lesson.numQues].correct){
+                      lesson.questions[lesson.numQues].answers[chossen].chossen=2;
+                    }
+                    lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
+                    quesButtonText = "Next";
+                    setState(() {});
+                  }
+                },
+                style: buttonStyle,
+                child: Text(quesButtonText),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
