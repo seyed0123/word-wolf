@@ -36,6 +36,7 @@ class _HomeState extends State<Home> {
     getUser();
     super.initState();
   }
+
   ButtonStyle buttonStyle = ElevatedButton.styleFrom(
         primary: Colors.blue, // Background color
         onPrimary: Colors.white, // Text color
@@ -143,12 +144,20 @@ class _HomeState extends State<Home> {
                       Navigator.pushNamed(context, '/new_word');
                     },
                         style: buttonStyle,
-                        child: const Text("new word")),
+                        child: const Text("new word")
+                    ),
+                    FilledButton(onPressed: () {
+                      Navigator.pushNamed(context, '/lesson');
+                    },
+                        style: buttonStyle,
+                        child: const Text("lesson")
+                    ),
                     FilledButton(onPressed: () {
                       Navigator.pushNamed(context, '/word_list');
                     },
                         style: buttonStyle,
-                        child: const Text("word list"))
+                        child: const Text("word list")
+                    ),
                   ],
                 ),
               ],
