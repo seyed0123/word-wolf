@@ -18,7 +18,7 @@ class _Lesson_pageState extends State<Lesson_page> {
   late Lesson lesson;
 
   void getLesson(){
-      lesson = Lesson([Question('hey', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3),Question('hallo', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 2),Question('hola',[Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3)], [Word('1', 'yes', 'ja', 'English', 1),Word('1', 'ei', 'egg', 'German', 1)]);
+      lesson = Lesson([Question('Question 1: hey', [Answer('no'),Answer('yes'),Answer('hello'),Answer('thanks')], 2),Question('Question 2:hallo', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 2),Question('Question 3:hola',[Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3)], [Word('1', 'yes', 'ja', 'English', 1),Word('1', 'ei', 'egg', 'German', 1)]);
   }
 
   Color hexToColor(String hexCode) {
@@ -151,13 +151,14 @@ class _Lesson_pageState extends State<Lesson_page> {
                     e.num = numAns;
                     numAns+=1;
                     return Container(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       child: TextButton(onPressed: (){
                         e.chossen = 1 ;
                         if(chossen != -1){
                           lesson.questions[lesson.numQues].answers[chossen].chossen=0;
                         }
                         chossen = e.num;
+                        numAns=0;
                         setState(() {});
                       },
                         style: TextButton.styleFrom(
@@ -167,32 +168,40 @@ class _Lesson_pageState extends State<Lesson_page> {
                           ),
                         ),
                         child: Container(
-                          margin: EdgeInsets.all(10),
-                          padding: EdgeInsets.all(20),
+                          margin: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(20),
                           child: Text(e.text),
                       )),
                     );
                   }).toList(),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               FilledButton(
                 onPressed: () {
-                  if(quesButtonText=='Next')
-                  {
+
+                  if(quesButtonText=='Next') {
                     lesson.numQues += 1;
                     lesson.addProgress();
                     quesButtonText = "Submit";
-                    setState(() {});
+                    numAns=0;
+                    chossen =-1;
                   }else{
                     if(chossen != lesson.questions[lesson.numQues].correct){
                       lesson.questions[lesson.numQues].answers[chossen].chossen=2;
                     }
                     lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
                     quesButtonText = "Next";
+                    numAns=0;
+                  }
+
+                  if(lesson.numQues >= lesson.questions.length){
+                    Navigator.pop(context);
+                  }else{
                     setState(() {});
                   }
+
                 },
                 style: buttonStyle,
                 child: Text(quesButtonText),
