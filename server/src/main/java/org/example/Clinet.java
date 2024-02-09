@@ -28,7 +28,7 @@ public class Clinet {
             json.put("operation", "login");
             json.put("username", "amir");
             json.put("password", "1234");
-            json.put("device ID", "id34516545");
+            json.put("deviceID", "id34516545");
             System.out.println(json);
             objectOut.writeObject(json.toString());
         }
