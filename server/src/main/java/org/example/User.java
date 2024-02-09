@@ -1,20 +1,43 @@
 package org.example;
 
+import org.json.JSONObject;
+
 public class User {
-    String username;
-    String password;
-    String phoneNumber; // phone verification (later)
-    boolean rememberMe = false;
+    private String username;
+    private String email; //  verification (later)
+    private String deviceID;
+    private boolean rememberMe = false;
 
-    public User (String username, String password) {
-        this.username =username;
-        this.password = password;
+    public User (String username) {
+        this.username = username;
+    }
+    public User (JSONObject json){
+        this.username = json.getString("username");
+        this.email = json.getString("email");
+        this.deviceID = json.getString("deviceID");
+        this.rememberMe = json.getBoolean("rememberMe");
+    }
+    // getters
+    public String getUsername() {
+        return username;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getDeviceID() {
+        return deviceID;
+    }
+    public boolean isRememberMe() {
+        return rememberMe;
     }
 
-    public static boolean checkUserPassword(String username, String password) {
-        return true;
+    // setters
+    public void setEmail(String email) {
+        this.email = email;
     }
-
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
+    }
     public void setRememberMe(boolean boo){
         this.rememberMe = boo;
     }
