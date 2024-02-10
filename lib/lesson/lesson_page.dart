@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:word_wolf/lesson/question.dart';
 import 'package:word_wolf/words/word.dart';
@@ -43,6 +44,7 @@ class _Lesson_pageState extends State<Lesson_page> {
   int chossen = -1;
   String quesButtonText = "Submit";
   int numAns = 0;
+  bool is_checked = false;
   @override
   void initState() {
     getLesson();
@@ -127,7 +129,7 @@ class _Lesson_pageState extends State<Lesson_page> {
           )
         : Container(
           padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
-          margin:const EdgeInsets.symmetric(vertical: 20,horizontal: 20),
+          margin:const EdgeInsets.symmetric(vertical: 40,horizontal: 30),
           decoration:BoxDecoration(
             color: hexToColor('DBE2EF'),
             boxShadow: [
@@ -142,7 +144,10 @@ class _Lesson_pageState extends State<Lesson_page> {
         child: Center(
           child: Column(
             children: [
-              Text(lesson.questions[lesson.numQues].question),
+              Text(
+                  lesson.questions[lesson.numQues].question,
+                style: GoogleFonts.radley(),
+              ),
               const SizedBox(
                 height: 50,
               ),
@@ -152,17 +157,24 @@ class _Lesson_pageState extends State<Lesson_page> {
                     numAns+=1;
                     return Container(
                       margin: const EdgeInsets.all(5),
-                      child: TextButton(onPressed: (){
+                      child: TextButton(onPressed: is_checked ?(){}:(){
                         e.chossen = 1 ;
-                        if(chossen != -1){
-                          lesson.questions[lesson.numQues].answers[chossen].chossen=0;
+                        if(chossen == e.num){
+                          chossen = -1;
+                          e.chossen = 0;
+                        }else {
+                          if (chossen != -1) {
+                            lesson.questions[lesson.numQues].answers[chossen]
+                                .chossen = 0;
+                            chossen = -1;
+                          }
+                          chossen = e.num;
                         }
-                        chossen = e.num;
                         numAns=0;
                         setState(() {});
                       },
                         style: TextButton.styleFrom(
-                          backgroundColor: e.chossen==1 ? hexToColor('ECB159'): e.chossen==0 ? hexToColor('F9F7F7') : e.chossen==2 ? hexToColor('9B4444'):hexToColor('74E291'),
+                          backgroundColor: e.chossen==1 ? hexToColor('ECB159'): e.chossen==0 ? hexToColor('F9F7F7') : e.chossen==2 ? hexToColor('FF8080'):hexToColor('74E291'),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10), // Rounded corners
                           ),
@@ -187,13 +199,18 @@ class _Lesson_pageState extends State<Lesson_page> {
                     quesButtonText = "Submit";
                     numAns=0;
                     chossen =-1;
+                    is_checked = false;
                   }else{
+                    if(chossen==-1){
+                      return;
+                    }
                     if(chossen != lesson.questions[lesson.numQues].correct){
                       lesson.questions[lesson.numQues].answers[chossen].chossen=2;
                     }
                     lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
                     quesButtonText = "Next";
                     numAns=0;
+                    is_checked = true;
                   }
 
                   if(lesson.numQues >= lesson.questions.length){
@@ -214,4 +231,3 @@ class _Lesson_pageState extends State<Lesson_page> {
   }
 
 }
-
