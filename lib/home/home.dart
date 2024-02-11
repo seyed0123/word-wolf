@@ -158,6 +158,12 @@ class _HomeState extends State<Home> {
                         style: buttonStyle,
                         child: const Text("word list")
                     ),
+                    FilledButton(onPressed: () {
+                      Navigator.pushNamed(context, '/popular_word');
+                    },
+                        style: buttonStyle,
+                        child: const Text("Popular word")
+                    ),
                   ],
                 ),
               ],
