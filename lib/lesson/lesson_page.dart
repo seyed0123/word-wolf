@@ -50,6 +50,45 @@ class _Lesson_pageState extends State<Lesson_page> {
     getLesson();
     super.initState();
   }
+
+
+  Container option(Answer e){
+    e.num = numAns;
+    numAns+=1;
+    return Container(
+      margin: const EdgeInsets.all(10),
+      width: MediaQuery.of(context).size.width *  0.25,
+      height: MediaQuery.of(context).size.width *  0.1,
+      child: TextButton(onPressed: is_checked ?(){}:(){
+        e.chossen = 1 ;
+        if(chossen == e.num){
+          chossen = -1;
+          e.chossen = 0;
+        }else {
+          if (chossen != -1) {
+            lesson.questions[lesson.numQues].answers[chossen]
+                .chossen = 0;
+            chossen = -1;
+          }
+          chossen = e.num;
+        }
+        numAns=0;
+        setState(() {});
+      },
+          style: TextButton.styleFrom(
+            backgroundColor: e.chossen==1 ? hexToColor('ECB159'): e.chossen==0 ? hexToColor('F9F7F7') : e.chossen==2 ? hexToColor('FF8080'):hexToColor('74E291'),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10), // Rounded corners
+            ),
+          ),
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(20),
+            child: Text(e.text),
+          )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,40 +191,24 @@ class _Lesson_pageState extends State<Lesson_page> {
                 height: 50,
               ),
               Column(
-                children:lesson.questions[lesson.numQues].answers.map((e) {
-                    e.num = numAns;
-                    numAns+=1;
-                    return Container(
-                      margin: const EdgeInsets.all(5),
-                      child: TextButton(onPressed: is_checked ?(){}:(){
-                        e.chossen = 1 ;
-                        if(chossen == e.num){
-                          chossen = -1;
-                          e.chossen = 0;
-                        }else {
-                          if (chossen != -1) {
-                            lesson.questions[lesson.numQues].answers[chossen]
-                                .chossen = 0;
-                            chossen = -1;
-                          }
-                          chossen = e.num;
-                        }
-                        numAns=0;
-                        setState(() {});
-                      },
-                        style: TextButton.styleFrom(
-                          backgroundColor: e.chossen==1 ? hexToColor('ECB159'): e.chossen==0 ? hexToColor('F9F7F7') : e.chossen==2 ? hexToColor('FF8080'):hexToColor('74E291'),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10), // Rounded corners
-                          ),
-                        ),
-                        child: Container(
-                          margin: const EdgeInsets.all(10),
-                          padding: const EdgeInsets.all(20),
-                          child: Text(e.text),
-                      )),
-                    );
-                  }).toList(),
+                // children:lesson.questions[lesson.numQues].answers.map((e) {return option(e);}
+                //     ).toList(),
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      option(lesson.questions[lesson.numQues].answers[0]),
+                      option(lesson.questions[lesson.numQues].answers[1]),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      option(lesson.questions[lesson.numQues].answers[2]),
+                      option(lesson.questions[lesson.numQues].answers[3]),
+                    ],
+                  )
+                ],
               ),
               const SizedBox(
                 height: 50,
