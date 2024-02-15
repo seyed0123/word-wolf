@@ -18,6 +18,7 @@ class _HomeState extends State<Home> {
   User ?user;
   
   void getUser(){
+    //TODO:get user
     user = User('1','seyed','123','seyed123ali123','Persian',200,8,100,true,2,'pro');
   }
 

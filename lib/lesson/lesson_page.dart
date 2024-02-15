@@ -4,8 +4,8 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:word_wolf/lesson/question.dart';
 import 'package:word_wolf/words/word.dart';
 import 'lesson.dart';
+import 'gifManager.dart';
 import 'package:word_wolf/flip_card/flip_card.dart';
-
 
 class Lesson_page extends StatefulWidget {
   const Lesson_page({Key? key}) : super(key: key);
@@ -19,7 +19,18 @@ class _Lesson_pageState extends State<Lesson_page> {
   late Lesson lesson;
 
   void getLesson(){
+      //TODO: getting lesson from server
       lesson = Lesson([Question('Question 1: hey', [Answer('no'),Answer('yes'),Answer('hello'),Answer('thanks')], 2),Question('Question 2:hallo', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 2),Question('Question 3:hola',[Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3)], [Word('1', 'yes', 'ja', 'English', 1),Word('1', 'ei', 'egg', 'German', 1)]);
+  }
+
+  void finishLesson(bool success,BuildContext context0){
+      Navigator.pop(context0);
+      if(success){
+        showPopup(context0);
+      }else{
+        lossPopup(context0);
+      }
+  //    TODO: send the result the lesson to the server
   }
 
   Color hexToColor(String hexCode) {
@@ -51,6 +62,78 @@ class _Lesson_pageState extends State<Lesson_page> {
     super.initState();
   }
 
+  Future<void> lossPopup(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Good but not enough.'),
+          content: const Text('Unfortunately you ran out of hearts, try harder next time.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Future<void> showPopup(BuildContext context) async {
+    List<String> gifItems = ['Option  1', 'Option  2', 'Option  3'];
+    String selectedOption = gifItems[0];
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose an option'),
+          content: Container(
+            width: double.maxFinite,
+            child: DropdownButtonFormField<String>(
+              value: selectedOption,
+              hint: Text('Select an option'),
+              items: gifItems
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedOption = newValue!;
+                });
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                // Handle the selected option here
+                print('Selected option: $selectedOption');
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void losePopUp(){
+
+}
 
   Container option(Answer e){
     e.num = numAns;
@@ -108,6 +191,19 @@ class _Lesson_pageState extends State<Lesson_page> {
             linearStrokeCap: LinearStrokeCap.roundAll,
             progressColor: hexToColor('112D4E'),
             ),
+            Row(
+              children: [
+                Text('${lesson.heart}'),
+                const SizedBox(
+                  width: 10,
+                ),
+                const Icon(
+                    Icons.favorite,
+                    color: Colors.red,
+                ),
+
+              ],
+            )
           ]
         )
       ),
@@ -229,6 +325,10 @@ class _Lesson_pageState extends State<Lesson_page> {
                     }
                     if(chossen != lesson.questions[lesson.numQues].correct){
                       lesson.questions[lesson.numQues].answers[chossen].chossen=2;
+                      lesson.heart--;
+                      if(lesson.heart==0){
+                        finishLesson(false,context);
+                      }
                     }
                     lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
                     quesButtonText = "Next";
@@ -237,7 +337,7 @@ class _Lesson_pageState extends State<Lesson_page> {
                   }
 
                   if(lesson.numQues >= lesson.questions.length){
-                    Navigator.pop(context);
+                    finishLesson(true,context);
                   }else{
                     setState(() {});
                   }

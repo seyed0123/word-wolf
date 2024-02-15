@@ -17,12 +17,14 @@ class _new_wordState extends State<new_word> {
 
   String error = '';
   bool ok = false;
+
   @override
   void dispose() {
     word.dispose();
     super.dispose();
   }
   void sendData(BuildContext context){
+    //TODO: send words data
     String err = '';
     if(word.text == ''){
       err = 'All fields are required';

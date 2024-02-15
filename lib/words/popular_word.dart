@@ -26,6 +26,7 @@ class _popularWordState extends State<popularWord> {
   }
 
   void addWord(String id){
+    //TODO: send the data to the server
     for(var i = 0 ; i < words.length ; i++){
       if(words[i].ID == id){
         words.removeAt(i);

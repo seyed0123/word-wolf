@@ -26,6 +26,7 @@ class _word_listState extends State<word_list> {
     return Color.fromRGBO(red, green,  blue,  1);
   }
   void deleteWord(String id){
+    //TODO: send the data to the server
     for(var i = 0 ; i < words.length ; i++){
       if(words[i].ID == id){
         words.removeAt(i);
