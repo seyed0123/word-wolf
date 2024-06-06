@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:word_wolf/home/User.dart';
@@ -13,14 +16,100 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-
-
   User ?user;
-  
-  void getUser(){
-    //TODO:get user
+  final host = 'localhost'; // Replace with your server's hostname or IP address
+  final port = 6666; // Replace with your server's port
+
+  Future<void>  getUser() async {
     user = User('1','seyed','123','seyed123ali123','Persian',200,8,100,true,2,'pro');
+    print('hello world');
+    final httpClient = HttpClient();
+    final url = Uri.parse('http://localhost:8080/hello');
+
+    try {
+      final request = await httpClient.getUrl(url);
+      final response = await request.close();
+
+      if (response.statusCode == HttpStatus.ok) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('Response: $responseBody');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      httpClient.close();
+    }
+
+
+    final httpClient1 = HttpClient();
+    final url1 = Uri.parse('http://localhost:8080/hello');
+
+    try {
+      final request = await httpClient1.postUrl(url1);
+      // Add any request headers if needed (e.g., content-type).
+      // request.headers.add(HttpHeaders.contentTypeHeader, 'application/json');
+
+      // Write data to the request body (if required).
+      request.write('{"key": "value"}');
+
+      final response = await request.close();
+
+      if (response.statusCode == HttpStatus.ok) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        print('Response: $responseBody');
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      httpClient1.close();
+    }
   }
+  // void getUser() async{
+  //
+  //
+  //   final WebSocket webSocket = WebSocket('ws://192.168.122.11:1234');
+  //
+  //   sendMessage(webSocket, {
+  //   'type': 'greeting',
+  //   'content': 'Hello, World!'
+  //   });
+  //
+  //   // webSocket.onOpen.listen((event) {
+  //   //   print('WebSocket connection opened');
+  //   //
+  //   //   // Create a JSON object
+  //   //   var message = {
+  //   //     'type': 'greeting',
+  //   //     'content': 'Hello, World!'
+  //   //   };
+  //   //
+  //   //   // Serialize the JSON object to a string
+  //   //   String jsonString = jsonEncode(message);
+  //   //   print('Sending JSON: $jsonString');
+  //   //
+  //   //   // Send the JSON string over the WebSocket
+  //   //   webSocket.send(jsonString);
+  //   // });
+  //   //
+  //   // webSocket.onMessage.listen((event) {
+  //   //   print('Received: ${event.data}');
+  //   // });
+  //   //
+  //   // webSocket.onError.listen((event) {
+  //   //   print('WebSocket error: $event');
+  //   // });
+  //   //
+  //   // webSocket.onClose.listen((event) {
+  //   //   print('WebSocket connection closed');
+  //   // });
+  //
+  //   //TODO:get user
+
+  // }
 
 
   Color hexToColor(String hexCode) {
