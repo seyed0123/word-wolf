@@ -11,11 +11,10 @@ class word_list extends StatefulWidget {
 }
 
 class _word_listState extends State<word_list> {
-  String mother_tongue = 'Persian';
   List<Word> words = [];
 
   void getWords(){
-    words = [Word('1','hello','سلام','English',10),Word('2','hallo','سلام','German',75),Word('3','سلام','سلام','Arabic',100),Word('4','Bonjour','سلام','French',30),Word('5','Hola','سلام','Spanish',60)];
+    words = [Word('1','hello','سلام','English','Persian',10),Word('2','hallo','سلام','German','Persian',75),Word('3','سلام','سلام','Arabic','Persian',100),Word('4','Bonjour','سلام','French','Persian',30),Word('5','Hola','سلام','Spanish','Persian',60)];
   }
 
 
@@ -27,6 +26,7 @@ class _word_listState extends State<word_list> {
   }
   void deleteWord(String id){
     //TODO: send the data to the server
+    //getWords();
     for(var i = 0 ; i < words.length ; i++){
       if(words[i].ID == id){
         words.removeAt(i);
@@ -104,7 +104,7 @@ class _word_listState extends State<word_list> {
                   children: [
                     CircleAvatar(
                       radius:  25, // Adjust the radius as needed
-                      backgroundImage: AssetImage('assets/flag_of_$mother_tongue.png'), // Replace with your asset path
+                      backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
                     ),
                     const SizedBox(width: 10),
                     const Icon(Icons.arrow_forward),

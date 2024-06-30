@@ -10,11 +10,10 @@ class popularWord extends StatefulWidget {
 }
 
 class _popularWordState extends State<popularWord> {
-  String mother_tongue = 'Persian';
   List<Word> words = [];
 
   void getWords(){
-    words = [Word('1','hello','سلام','English',10),Word('2','hallo','سلام','German',75),Word('3','سلام','سلام','Arabic',100),Word('4','Bonjour','سلام','French',30),Word('5','Hola','سلام','Spanish',60)];
+    words = [Word('1','hello','سلام','English','Persian',10),Word('2','hallo','سلام','German','Persian',75),Word('3','سلام','سلام','Arabic','Persian',100),Word('4','Bonjour','سلام','French','Persian',30),Word('5','Hola','سلام','Spanish','Persian',60)];
   }
 
 
@@ -87,6 +86,18 @@ class _popularWordState extends State<popularWord> {
                         const Icon(Icons.arrow_forward),
                         const SizedBox(width: 10),
                         Text(word.actualWord),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius:  25, // Adjust the radius as needed
+                          backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(Icons.arrow_forward),
+                        const SizedBox(width: 10),
+                        Text(word.meaning),
                       ],
                     ),
                     IconButton(onPressed: (){addWord(word.ID);}, icon: const Icon(Icons.add_box))

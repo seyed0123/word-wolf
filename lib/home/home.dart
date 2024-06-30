@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   User ?user;
 
   Future<void>  getUser() async {
-    // user = User('1','seyed','123','seyed123ali123','Persian',200,8,100,true,2,'pro');
+    user = User('1','seyed','123','seyed123ali123',200,8,100,true,2,'pro');
     try {
       final response = await http.get(Uri.parse('http://localhost:8080/user')); // Replace with your endpoint
       if (response.statusCode == 200) {

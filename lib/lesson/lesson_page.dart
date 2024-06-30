@@ -5,7 +5,8 @@ import 'package:word_wolf/lesson/question.dart';
 import 'package:word_wolf/words/word.dart';
 import 'lesson.dart';
 import 'gifManager.dart';
-import 'package:word_wolf/flip_card/flip_card.dart';
+// import 'package:word_wolf/flip_card/flip_card.dart';
+import 'package:flip_card/flip_card.dart';
 
 class Lesson_page extends StatefulWidget {
   const Lesson_page({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class _Lesson_pageState extends State<Lesson_page> {
 
   void getLesson(){
       //TODO: getting lesson from server
-      lesson = Lesson([Question('Question 1: hey', [Answer('no'),Answer('yes'),Answer('hello'),Answer('thanks')], 2),Question('Question 2:hallo', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 2),Question('Question 3:hola',[Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3)], [Word('1', 'yes', 'ja', 'English', 1),Word('1', 'ei', 'egg', 'German', 1)]);
+      lesson = Lesson([Question('Question 1: hey', [Answer('no'),Answer('yes'),Answer('hello'),Answer('thanks')], 2),Question('Question 2:hallo', [Answer('1'),Answer('2'),Answer('3'),Answer('4')], 2),Question('Question 3:hola',[Answer('1'),Answer('2'),Answer('3'),Answer('4')], 3)], [Word('1', 'yes', 'ja', 'English','German', 1),Word('1', 'ei', 'egg', 'German','english', 1)]);
   }
 
   void finishLesson(bool success,BuildContext context0){
@@ -214,9 +215,9 @@ class _Lesson_pageState extends State<Lesson_page> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 FlipCard(
-                  fill: Fill.back, // Fill the back side of the card to make in the same size as the front.
-                  direction: Axis.horizontal, // default
-                  initialSide: CardSide.front, // The side to initially display.
+                  fill: Fill.fillBack, // Fill the back side of the card to make in the same size as the front.
+                  direction: lesson.numWord % 2==0 ?FlipDirection.HORIZONTAL:FlipDirection.VERTICAL, // default
+                  side: CardSide.FRONT, // The side to initially display.
                   front: Container(
                     color: hexToColor('3F72AF'),
                     width: MediaQuery.of(context).size.width * 0.4,
@@ -242,7 +243,19 @@ class _Lesson_pageState extends State<Lesson_page> {
                     width: MediaQuery.of(context).size.width * 0.4,
                     height: MediaQuery.of(context).size.height * 0.4,
                     child: Center(
-                        child:Text(lesson.words[lesson.numWord].meaning)
+                        child:Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(lesson.words[lesson.numWord].meaning),
+                            const SizedBox(
+                              width: 50,
+                            ),
+                            CircleAvatar(
+                              radius:  50, // Adjust the radius as needed
+                              backgroundImage: AssetImage('assets/flag_of_${lesson.words[lesson.numWord].meaningLang}.png'), // Replace with your asset path
+                            ),
+                          ],
+                        )
                     ),
                   ),
                 ),

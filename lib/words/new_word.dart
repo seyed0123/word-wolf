@@ -10,6 +10,7 @@ class new_word extends StatefulWidget {
 class _new_wordState extends State<new_word> {
 
   final word = TextEditingController();
+  final wordMeaning = TextEditingController();
 
   String dropdownValue = 'English';
 
@@ -21,12 +22,15 @@ class _new_wordState extends State<new_word> {
   @override
   void dispose() {
     word.dispose();
+    wordMeaning.dispose();
     super.dispose();
   }
   void sendData(BuildContext context){
-    //TODO: send words data
     String err = '';
     if(word.text == ''){
+      err = 'All fields are required';
+    }
+    if(wordMeaning.text == ''){
       err = 'All fields are required';
     }
     if( err!=''){
@@ -35,15 +39,15 @@ class _new_wordState extends State<new_word> {
       });
       return;
     }
-    showAlertDialog(context,word.text,'Hey');
-    // if (ok==true) {
-    //   Navigator.pop(context);
-    // }
+    showAlertDialog(context,word.text,wordMeaning.text);
+
   }
 
-
   void verify(bool flag){
-    ok=flag;
+    if (flag==true) {
+      //TODO: send the new words data to server
+      Navigator.pop(context);
+    }
   }
 
 
@@ -169,6 +173,15 @@ class _new_wordState extends State<new_word> {
               ),
               const SizedBox(
                 height: 40,
+              ),
+             TextField(
+                controller: wordMeaning,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  labelText: 'word meaning',
+                ),
+              ), const SizedBox(
+                height: 25,
               ),
               ElevatedButton(
                 onPressed: () {

@@ -4,7 +4,6 @@ class User{
   String username;
   String password;
   String email;
-  String motherTongue;
   String strikeLevelName;
   int strikeLevel;
   int xp;
@@ -12,7 +11,7 @@ class User{
   int strike;
   bool isPracticeToday;
 
-  User(this.id, this.username, this.password, this.email, this.motherTongue,
+  User(this.id, this.username, this.password, this.email,
       this.xp, this.level, this.strike,this.isPracticeToday,this.strikeLevel,this.strikeLevelName);
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -21,7 +20,6 @@ class User{
       json['name'],
       json['password'],
       json['username'],
-      json['language'],
       json['xp'],
       json['level'],
       json['strike'],
