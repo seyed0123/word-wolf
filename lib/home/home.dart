@@ -6,6 +6,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:word_wolf/home/User.dart';
 import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -17,99 +18,24 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   User ?user;
-  final host = 'localhost'; // Replace with your server's hostname or IP address
-  final port = 6666; // Replace with your server's port
 
   Future<void>  getUser() async {
-    user = User('1','seyed','123','seyed123ali123','Persian',200,8,100,true,2,'pro');
-    print('hello world');
-    final httpClient = HttpClient();
-    final url = Uri.parse('http://localhost:8080/hello');
-
+    // user = User('1','seyed','123','seyed123ali123','Persian',200,8,100,true,2,'pro');
     try {
-      final request = await httpClient.getUrl(url);
-      final response = await request.close();
-
-      if (response.statusCode == HttpStatus.ok) {
-        final responseBody = await response.transform(utf8.decoder).join();
-        print('Response: $responseBody');
+      final response = await http.get(Uri.parse('http://localhost:8080/user')); // Replace with your endpoint
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        print(data);
+        setState(() {
+          user = User.fromJson(data); // Assuming you have a fromJson method in your User class
+        });
       } else {
-        print('Error: ${response.statusCode}');
+        throw Exception('Failed to load user data');
       }
     } catch (e) {
       print('Error: $e');
-    } finally {
-      httpClient.close();
-    }
-
-
-    final httpClient1 = HttpClient();
-    final url1 = Uri.parse('http://localhost:8080/hello');
-
-    try {
-      final request = await httpClient1.postUrl(url1);
-      // Add any request headers if needed (e.g., content-type).
-      // request.headers.add(HttpHeaders.contentTypeHeader, 'application/json');
-
-      // Write data to the request body (if required).
-      request.write('{"key": "value"}');
-
-      final response = await request.close();
-
-      if (response.statusCode == HttpStatus.ok) {
-        final responseBody = await response.transform(utf8.decoder).join();
-        print('Response: $responseBody');
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error: $e');
-    } finally {
-      httpClient1.close();
     }
   }
-  // void getUser() async{
-  //
-  //
-  //   final WebSocket webSocket = WebSocket('ws://192.168.122.11:1234');
-  //
-  //   sendMessage(webSocket, {
-  //   'type': 'greeting',
-  //   'content': 'Hello, World!'
-  //   });
-  //
-  //   // webSocket.onOpen.listen((event) {
-  //   //   print('WebSocket connection opened');
-  //   //
-  //   //   // Create a JSON object
-  //   //   var message = {
-  //   //     'type': 'greeting',
-  //   //     'content': 'Hello, World!'
-  //   //   };
-  //   //
-  //   //   // Serialize the JSON object to a string
-  //   //   String jsonString = jsonEncode(message);
-  //   //   print('Sending JSON: $jsonString');
-  //   //
-  //   //   // Send the JSON string over the WebSocket
-  //   //   webSocket.send(jsonString);
-  //   // });
-  //   //
-  //   // webSocket.onMessage.listen((event) {
-  //   //   print('Received: ${event.data}');
-  //   // });
-  //   //
-  //   // webSocket.onError.listen((event) {
-  //   //   print('WebSocket error: $event');
-  //   // });
-  //   //
-  //   // webSocket.onClose.listen((event) {
-  //   //   print('WebSocket connection closed');
-  //   // });
-  //
-  //   //TODO:get user
-
-  // }
 
 
   Color hexToColor(String hexCode) {
@@ -269,3 +195,14 @@ class _HomeState extends State<Home> {
     }
   }
 }
+
+// Future<String> fetchData() async {
+//   final response = await http.get(Uri.parse('http://localhost:8080/hello'));
+//   print(response.body);
+//
+//   if (response.statusCode == 200) {
+//     return response.body.toString();
+//   } else {
+//     throw Exception('Failed to load data');
+//   }
+// }
