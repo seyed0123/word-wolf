@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:word_wolf/request.dart';
+import 'dart:convert';
 
 class Sign_up extends StatefulWidget {
   const Sign_up({Key? key}) : super(key: key);
@@ -49,6 +51,55 @@ class _Sign_upState extends State<Sign_up> {
         curve: Curves.linear,
       );
       return;
+    }
+    Map<String, dynamic> user = {
+      'username': username.text,
+      'password': password.text,
+      'email': email.text,
+      'mother_tongue':dropdownValue
+    };
+
+    final response = sendRequest('',jsonEncode(user),'signUp') as String;
+    Map<String, dynamic> responseData = jsonDecode(response);
+    String message  = responseData['message'];
+    saveToken(responseData['token']);
+    if(message=='ok') {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Signup Successful'),
+            content: Text('You are logged in!'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacementNamed(context, '/');
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }else{
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Signup Failed'),
+            content: Text('Failed to Signup. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
     print(username.text+password.text);
   }

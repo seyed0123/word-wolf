@@ -32,9 +32,10 @@ dependencies:
     sdk: flutter
 
   percent_indicator: ^4.2.3
-  google_fonts: ^6.1.0
+  google_fonts: 6.1.0
   web_socket_channel: ^2.1.0
   flip_card: ^0.7.0
+  shared_preferences: ^2.0.15
 #  flutter_flip_card: ^0.0.5
 
   # The following adds the Cupertino Icons font to your application.

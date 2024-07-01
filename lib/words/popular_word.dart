@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:word_wolf/words/word.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+
+import '../request.dart';
 
 class popularWord extends StatefulWidget {
   const popularWord({Key? key}) : super(key: key);
@@ -14,6 +18,9 @@ class _popularWordState extends State<popularWord> {
 
   void getWords(){
     words = [Word('1','hello','سلام','English','Persian',10),Word('2','hallo','سلام','German','Persian',75),Word('3','سلام','سلام','Arabic','Persian',100),Word('4','Bonjour','سلام','French','Persian',30),Word('5','Hola','سلام','Spanish','Persian',60)];
+    final String response = sendGetRequest(getToken() as String,'popularWords') as String;
+    final parsed = jsonDecode(response).cast<Map<String, dynamic>>();
+    words = parsed.map<Word>((json) => Word.fromJson(json)).toList();
   }
 
 
@@ -25,12 +32,50 @@ class _popularWordState extends State<popularWord> {
   }
 
   void addWord(String id){
-    //TODO: send the data to the server
-    for(var i = 0 ; i < words.length ; i++){
-      if(words[i].ID == id){
-        words.removeAt(i);
-      }
+    Map<String, dynamic> user = {
+      'word_id': id,
+    };
+
+    final response = sendRequest(getToken() as String,jsonEncode(user),'add_popular_word') as String;
+    Map<String, dynamic> responseData = jsonDecode(response);
+    String message  = responseData['message'];
+    if(message=='ok') {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('deleting Successful'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }else{
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('deleting Failed'),
+            content: const Text('Failed to login. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
+    getWords();
     setState(() {});
   }
 

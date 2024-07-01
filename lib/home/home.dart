@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:word_wolf/home/User.dart';
 import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
+import 'package:word_wolf/request.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -21,20 +20,14 @@ class _HomeState extends State<Home> {
 
   Future<void>  getUser() async {
     user = User('1','seyed','123','seyed123ali123',200,8,100,true,2,'pro');
-    try {
-      final response = await http.get(Uri.parse('http://localhost:8080/user')); // Replace with your endpoint
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        print(data);
-        setState(() {
-          user = User.fromJson(data); // Assuming you have a fromJson method in your User class
-        });
-      } else {
-        throw Exception('Failed to load user data');
-      }
-    } catch (e) {
-      print('Error: $e');
+    final String response = sendGetRequest(getToken() as String,'getUser') as String;
+    if(response == '') {
+      return;
     }
+    final Map<String, dynamic> data = jsonDecode(response);
+    setState(() {
+      user = User.fromJson(data);
+    });
   }
 
 
@@ -68,15 +61,14 @@ class _HomeState extends State<Home> {
     );
   @override
   Widget build(BuildContext context) {
-    if(user==null){
-      return Scaffold(
-        body:Center(
-          child: ElevatedButton(onPressed: (){
-            Navigator.pop(context); // pop the current stage
-            Navigator.pushNamed(context, '/login');}
-            ,child: Text('login'),
-          ),
-        )
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (Route<dynamic> route) => false);
+      });
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }else {
       return Scaffold(

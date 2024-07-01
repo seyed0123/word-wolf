@@ -23,7 +23,7 @@ class User{
       json['xp'],
       json['level'],
       json['strike'],
-      json['practiceToday'],
+      json['isPracticeToday'],
       json['strikeLevel'],
       json['strikeLevelName'],
     );
