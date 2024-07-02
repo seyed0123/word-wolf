@@ -20,10 +20,6 @@ class _Sign_upState extends State<Sign_up> {
 
 
 
-  String dropdownValue = 'English';
-
-  final List<String> dropdownOptions = ['English', 'Persian', 'German','French','Spanish','Arabic'];
-
   String error = '';
   @override
   void dispose() {
@@ -32,14 +28,14 @@ class _Sign_upState extends State<Sign_up> {
     super.dispose();
   }
 
-  void sendData(){
+  Future<void> sendData() async {
     String err = '';
-    if(username.text == '' || password.text == ''|| rePassword.text == '' || email.text == ''){
+    if(username.text.isEmpty || password.text.isEmpty|| rePassword.text.isEmpty || email.text.isEmpty){
       err = 'All fields are required';
     }else if (password.text != rePassword.text) {
       err = 'password doesn\'t match';
     }else if(_isChecked == false){
-      err='agree the terms';
+      err='Agree the terms';
     }
     if( err!=''){
       setState(() {
@@ -56,52 +52,78 @@ class _Sign_upState extends State<Sign_up> {
       'username': username.text,
       'password': password.text,
       'email': email.text,
-      'mother_tongue':dropdownValue
     };
 
-    final response = sendRequest('',jsonEncode(user),'signUp') as String;
-    Map<String, dynamic> responseData = jsonDecode(response);
-    String message  = responseData['message'];
-    saveToken(responseData['token']);
-    if(message=='ok') {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Signup Successful'),
-            content: Text('You are logged in!'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-              ),
-            ],
+    try {
+      final response = await sendRequest('', jsonEncode(user), 'sign_up');
+      Map<String, dynamic> responseData = jsonDecode(response);
+      String message = responseData['message'] ?? '';
+
+      if (message == 'ok') {
+        await saveToken(responseData['token'] ?? '');
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Sign up Successful'),
+                content: const Text('You are logged in!'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.pushReplacementNamed(context, '/');
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
-    }else{
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Signup Failed'),
-            content: Text('Failed to Signup. Please try again.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+        }
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('sign_up Failed'),
+                content: Text(message),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text('An error occurred: $e'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
-    print(username.text+password.text);
+
   }
 
   @override
@@ -150,50 +172,6 @@ class _Sign_upState extends State<Sign_up> {
                 decoration: const InputDecoration(
                   labelText: 'enter password again',
                 ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              const Row(
-                children: [
-                  Text('mother tongue'),
-                  Icon(Icons.arrow_circle_down),
-                ],
-              ),
-              DropdownButton<String>(
-                borderRadius:BorderRadius.all(Radius.circular(5)),
-                isExpanded: true,
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize:  24,
-                elevation:  100,
-                style: const TextStyle(color: Colors.black),
-                underline: Container(
-                  height:  1,
-                  color: Colors.black45,
-                ),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius:  10, // Adjust the radius as needed
-                          backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(value),
-                      ],
-                    ),
-                  );
-                }).toList(),
               ),
               const SizedBox(
                   height: 25,

@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+
+import '../request.dart';
 
 class new_word extends StatefulWidget {
   const new_word({Key? key}) : super(key: key);
@@ -13,6 +17,8 @@ class _new_wordState extends State<new_word> {
   final wordMeaning = TextEditingController();
 
   String dropdownValue = 'English';
+
+  String dropdownValueMeaning = 'English';
 
   final List<String> dropdownOptions = ['English', 'Persian', 'German','French','Spanish','Arabic'];
 
@@ -45,7 +51,52 @@ class _new_wordState extends State<new_word> {
 
   void verify(bool flag){
     if (flag==true) {
-      //TODO: send the new words data to server
+      Map<String, dynamic> wordJ = {
+        'word': word.text,
+        'wordMeaning':wordMeaning.text,
+        'wordLang':dropdownValue,
+        'meaningLang':dropdownValueMeaning
+      };
+
+      final response = sendRequest(getToken() as String,jsonEncode(wordJ),'add_word') as String;
+      Map<String, dynamic> responseData = jsonDecode(response);
+      String message  = responseData['message'];
+      if(message=='ok') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('deleting Successful'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }else{
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('deleting Failed'),
+              content: const Text('Failed to login. Please try again.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
       Navigator.pop(context);
     }
   }
@@ -71,7 +122,7 @@ class _new_wordState extends State<new_word> {
     );
 
     AlertDialog alert = AlertDialog(
-      title: Text("Do you confirm the word meaning?"),
+      title: const Text("Do you confirm the word meaning?"),
       content: Text(
           '$word: $meaning',
         style: const TextStyle(
@@ -100,7 +151,7 @@ class _new_wordState extends State<new_word> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Word Wolf'),
+        title: const Text('Word Wolf'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(50.0),
@@ -114,7 +165,7 @@ class _new_wordState extends State<new_word> {
                   fontSize: 25,
                 ),),
               Text(
-                '$error',
+                error,
                 style: const TextStyle(
                   color: Colors.redAccent,
                   fontSize: 20,
@@ -137,7 +188,7 @@ class _new_wordState extends State<new_word> {
                 ],
               ),
               DropdownButton<String>(
-                borderRadius:BorderRadius.all(Radius.circular(5)),
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
                 isExpanded: true,
                 value: dropdownValue,
                 icon: const Icon(Icons.arrow_downward),
@@ -182,6 +233,50 @@ class _new_wordState extends State<new_word> {
                 ),
               ), const SizedBox(
                 height: 25,
+              ),
+              const Row(
+                children: [
+                  Text('The word\' meaning belongs to which language?'),
+                  Icon(Icons.arrow_circle_down),
+                ],
+              ),
+              DropdownButton<String>(
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+                isExpanded: true,
+                value: dropdownValueMeaning,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize:  24,
+                elevation:  100,
+                style: const TextStyle(color: Colors.black),
+                underline: Container(
+                  height:  1,
+                  color: Colors.black45,
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    dropdownValueMeaning = newValue!;
+                  });
+                },
+                items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius:  10, // Adjust the radius as needed
+                          backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(value),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(
+                height: 40,
               ),
               ElevatedButton(
                 onPressed: () {

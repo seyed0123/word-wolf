@@ -32,11 +32,11 @@ class _word_listState extends State<word_list> {
     return Color.fromRGBO(red, green,  blue,  1);
   }
   void deleteWord(String id){
-    Map<String, dynamic> user = {
+    Map<String, dynamic> word = {
       'word_id': id,
     };
 
-    final response = sendRequest(getToken() as String,jsonEncode(user),'delete_word') as String;
+    final response = sendRequest(getToken() as String,jsonEncode(word),'delete_word') as String;
     Map<String, dynamic> responseData = jsonDecode(response);
     String message  = responseData['message'];
     if(message=='ok') {

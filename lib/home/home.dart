@@ -19,8 +19,13 @@ class _HomeState extends State<Home> {
   User ?user;
 
   Future<void>  getUser() async {
-    user = User('1','seyed','123','seyed123ali123',200,8,100,true,2,'pro');
-    final String response = sendGetRequest(getToken() as String,'getUser') as String;
+    // user = User('1','seyed','123','seyed123ali123',200,8,100,true,2,'pro');
+    String? token = await getToken();
+    print(token);
+    if(token == null) {
+      return;
+    }
+    final String response = await sendGetRequest(token,'getUser');
     if(response == '') {
       return;
     }

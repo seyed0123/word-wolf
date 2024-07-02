@@ -24,64 +24,95 @@ class _loginState extends State<login> {
     super.dispose();
   }
 
-  void sendData(){
-    if(username.text == '' || password.text == ''){
-      setState(() {
-        error = 'All fields are required';
-      });
+  Future<void> sendData() async {
+    if (username.text.isEmpty || password.text.isEmpty) {
+      if (mounted) {
+        setState(() {
+          error = 'All fields are required';
+        });
+      }
       return;
     }
+
     Map<String, dynamic> user = {
       'username': username.text,
-      'password': password.text
+      'password': password.text,
     };
 
-    final response = sendRequest('',jsonEncode(user),'login') as String;
-    Map<String, dynamic> responseData = jsonDecode(response);
-    String message  = responseData['message'];
-    saveToken(responseData['token']);
-    if(message=='ok') {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Login Successful'),
-            content: const Text('You are logged in!'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-              ),
-            ],
+    try {
+      final response = await sendRequest('', jsonEncode(user), 'login');
+      Map<String, dynamic> responseData = jsonDecode(response);
+      String message = responseData['message'] ?? '';
+
+      if (message == 'ok') {
+        await saveToken(responseData['token'] ?? '');
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Log in up Successful'),
+                content: const Text('You are logged in!'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                      Navigator.pushReplacementNamed(context, '/');
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
-    }else{
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Login Failed'),
-            content: const Text('Failed to login. Please try again.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+        }
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('login Failed'),
+                content: Text(message),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text('An error occurred: $e'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
-    print(username.text+password.text);
   }
 
-  @override
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Word Wolf')),

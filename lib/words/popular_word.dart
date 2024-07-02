@@ -32,11 +32,11 @@ class _popularWordState extends State<popularWord> {
   }
 
   void addWord(String id){
-    Map<String, dynamic> user = {
+    Map<String, dynamic> word = {
       'word_id': id,
     };
 
-    final response = sendRequest(getToken() as String,jsonEncode(user),'add_popular_word') as String;
+    final response = sendRequest(getToken() as String,jsonEncode(word),'add_popular_word') as String;
     Map<String, dynamic> responseData = jsonDecode(response);
     String message  = responseData['message'];
     if(message=='ok') {

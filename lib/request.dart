@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<String> sendRequest(String token, String json,String endpoint) async {
   final response = await http.post(
-    Uri.parse('http://your-java-server-endpoint/$endpoint'),
+    Uri.parse('http://localhost:8080/$endpoint'),
     headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': token,
@@ -22,7 +22,7 @@ Future<String> sendRequest(String token, String json,String endpoint) async {
 
 Future<String> sendGetRequest(String token,String endpoint) async {
   final response = await http.get(
-    Uri.parse('http://your-java-server-endpoint/$endpoint'),
+    Uri.parse('http://localhost:8080/$endpoint'),
     headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': token,
