@@ -184,6 +184,16 @@ public class DataBase {
         rs.next();
         return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),rs.getInt(8),rs.getBoolean(9));
     }
+
+    public static User getUserByID(String id) throws SQLException {
+        String query = "SELECT * from user where id = ?";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, id);
+        ResultSet rs = stmt.executeQuery();
+        rs.next();
+        return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),rs.getInt(8),rs.getBoolean(9));
+    }
+
     public static String getUsernameByID(int deviceID){
         try {
             String query = "SELECT name from users where deviceID = ?";

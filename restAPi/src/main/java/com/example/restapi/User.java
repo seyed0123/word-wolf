@@ -8,6 +8,16 @@ public class User {
     private String email; //  verification (later)
     private String password;
     private int strikeLevel;
+
+    public String getStrikeLevelName() {
+        return strikeLevelName;
+    }
+
+    public void setStrikeLevelName(String strikeLevelName) {
+        this.strikeLevelName = strikeLevelName;
+    }
+
+    private String strikeLevelName;
     private int xp;
     private int level;
     private int strike;
@@ -17,7 +27,7 @@ public class User {
         this.username = username;
     }
 
-    public User(String id, String username, String email, String password, int strikeLevel, int xp, int level, int strike, boolean isPracticeToday) {
+    public User(String id, String username, String password, String email, int strikeLevel, int xp, int level, int strike, boolean isPracticeToday) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -27,6 +37,11 @@ public class User {
         this.level = level;
         this.strike = strike;
         this.isPracticeToday = isPracticeToday;
+        settingStrikeLevelName();
+    }
+
+    public void settingStrikeLevelName(){
+        this.strikeLevelName = "pro";
     }
 
     public String getId() {
