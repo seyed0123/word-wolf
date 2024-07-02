@@ -61,7 +61,7 @@ public class ClientHandler extends Thread {
         if(DataBase.usernameExist(json.getString("username"))) {
             if(DataBase.checkPassword(json.getString("username"), json.getString("password"))) {
                 json.put("error", "none");
-                this.currentUser = new User(json);
+//                this.currentUser = new User(json);
                 mainMenu();
             } else {
                 json.put("error", "password");
@@ -83,7 +83,7 @@ public class ClientHandler extends Thread {
         if(loginFail) run();
     }
     private void signup() {
-        User signingUser = new User(json);
+        User signingUser = null;
         json = new JSONObject();
         boolean signupFail = false;
         if(DataBase.usernameExist(signingUser.getUsername())){

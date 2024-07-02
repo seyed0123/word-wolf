@@ -12,19 +12,7 @@ public class UserController {
     @CrossOrigin(origins = "*")
     @GetMapping("/user")
     public String getUser() throws JsonProcessingException {
-        User user = new User(
-                "1",
-                "seyed13",
-                "123",
-                "seyed123ali123",
-                "Persian",
-                200,
-                10,
-                150,
-                true,
-                2,
-                "pro"
-        );
+        User user = null;
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(user);
         return jsonString;
