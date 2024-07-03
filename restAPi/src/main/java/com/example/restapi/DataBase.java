@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 public class DataBase {
@@ -227,6 +228,100 @@ public class DataBase {
         return new User("");
     }
     // word
-    public static void getUserWords(){}
 
+    public static void addWord(String ID, String actualWord, String meaning, String wordLang, String meaningLang) throws SQLException {
+        String query = "insert into word (id, actword, meaning, wordlang, meanLang) values (?,?,?,?,?)";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, ID);
+        stmt.setString(2,actualWord);
+        stmt.setString(3, meaning);
+        stmt.setString(4,wordLang);
+        stmt.setString(5,meaningLang);
+        stmt.executeUpdate();
+    }
+    public static void delWord(String wordId) throws SQLException {
+        String query = "delete from word where id = ?";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, wordId);
+        stmt.executeUpdate();
+    }
+    public static void delWordUser(String wordId,String userId) throws SQLException {
+        String query = "delete from word_user where userid= ? and wordid = ?";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, userId);
+        stmt.setString(2, wordId);
+        stmt.executeUpdate();
+    }
+
+    public static void addWordUser(String wordID,String userId) throws SQLException {
+        String query = "insert into word_user (wordid, userid, progress) VALUES (?,?,?)";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, wordID);
+        stmt.setString(2,userId);
+        stmt.setInt(3, 0);
+        stmt.executeUpdate();
+    }
+    public static ArrayList<Word> getPopularWords() throws SQLException {
+        String query = "SELECT \n" +
+                "    *, \n" +
+                "    COUNT(*) AS frequency, \n" +
+                "    AVG(progress) AS avg_progress\n" +
+                "FROM \n" +
+                "    word_user\n" +
+                "GROUP BY \n" +
+                "    wordid, \n" +
+                "    userid\n" +
+                "ORDER BY \n" +
+                "    frequency DESC;\n";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        ResultSet rs = stmt.executeQuery();
+        ArrayList<Word> ret = new ArrayList<>();
+        HashSet<String> seen = new HashSet<>();
+        while (rs.next()){
+            String wordId = rs.getString("wordid");
+            if (seen.contains(wordId)) {
+                continue;
+            }
+            double progress = rs.getDouble("progress");
+            String wordQuery = "select * from word where id = ?";
+            PreparedStatement wordStmt = connection.prepareStatement(wordQuery);
+            wordStmt.setString(1,wordId);
+            ResultSet wordRs = wordStmt.executeQuery();
+            wordRs.next();
+            ret.add(new Word(wordRs.getString(1),wordRs.getString(2),wordRs.getString(3),wordRs.getString(4),wordRs.getString(5),progress));
+            seen.add(wordId);
+        }
+        return ret;
+    }
+
+
+    public static ArrayList<Word> getWords(String userId) throws SQLException {
+        String query = "select * from word_user where userid = ?;";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, userId);
+        ResultSet rs = stmt.executeQuery();
+        ArrayList<Word> ret = new ArrayList<>();
+        while (rs.next()){
+            String wordId = rs.getString("wordid");
+            double progress = rs.getDouble("progress");
+            String wordQuery = "select * from word where id = ?";
+            PreparedStatement wordStmt = connection.prepareStatement(wordQuery);
+            wordStmt.setString(1,wordId);
+            ResultSet wordRs = wordStmt.executeQuery();
+            wordRs.next();
+            ret.add(new Word(wordRs.getString(1),wordRs.getString(2),wordRs.getString(3),wordRs.getString(4),wordRs.getString(5),progress));
+        }
+        return ret;
+    }
+
+    public static String getWordMean(String actWord,String meaning ,String wordLang,String meaningLang) throws SQLException {
+        String query = "select id from word where actword = '"+actWord+"' and meaning = '"+meaning+"' and wordlang = '"+wordLang+"' and meanLang = '"+meaningLang+"' ";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        ResultSet rs = stmt.executeQuery();
+        if(rs.wasNull()){
+            throw new SQLException();
+        }
+        rs.next();
+        return rs.getString(1);
+    }
 }
