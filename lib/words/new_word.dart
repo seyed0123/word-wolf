@@ -55,11 +55,6 @@ class _NewWordState extends State<new_word> {
 
         if (message == 'ok') {
           if (mounted) {
-            wordController.text = '';
-            wordMeaningController.text = '';
-            dropdownValue  = 'English';
-            dropdownValueMeaning = 'English';
-            ok = false;
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -77,6 +72,13 @@ class _NewWordState extends State<new_word> {
                 );
               },
             );
+            setState(() {
+              wordController.text = '';
+              wordMeaningController.text = '';
+              dropdownValue  = 'English';
+              dropdownValueMeaning = 'English';
+              ok = false;
+            });
           }
         } else {
           showErrorDialog(context, 'Word Adding Failed', message);
@@ -182,7 +184,6 @@ class _NewWordState extends State<new_word> {
               const Row(
                 children: [
                   Text('This word belongs to which language?'),
-                  Icon(Icons.arrow_circle_down),
                 ],
               ),
               DropdownButton<String>(
@@ -230,7 +231,6 @@ class _NewWordState extends State<new_word> {
               const Row(
                 children: [
                   Text('The word\'s meaning belongs to which language?'),
-                  Icon(Icons.arrow_circle_down),
                 ],
               ),
               DropdownButton<String>(

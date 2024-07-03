@@ -57,7 +57,6 @@ class _WordListState extends State<word_list> {
       String message = responseData['message'] ?? '';
 
       if (message == 'ok') {
-        words.removeWhere((word) => word.ID == id);
         if (mounted) {
           showDialog(
             context: context,
@@ -120,6 +119,9 @@ class _WordListState extends State<word_list> {
         );
       }
     }
+    setState(() {
+      words.removeWhere((word) => word.ID == id);
+    });
   }
 
   @override
