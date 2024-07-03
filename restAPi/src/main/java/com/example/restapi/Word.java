@@ -7,7 +7,9 @@ public class Word {
     private String wordLang;
     private String meaningLang;
     private double progress;
+    public Word(){
 
+    }
     public Word(String ID, String actualWord, String meaning, String wordLang, String meaningLang, double progress) {
         this.ID = ID;
         this.actualWord = actualWord;

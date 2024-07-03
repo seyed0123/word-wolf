@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.example.restapi.DataBase.*;
@@ -48,6 +49,9 @@ public class WordApi {
         String id = null;
         try{
             id = DataBase.getWordMean(word,wordMeaning,wordLang,meaningLang);
+            if(Objects.equals(id, "") || id == null){
+                throw new SQLException();
+            }
         }catch (SQLException e){
             id = UUID.randomUUID().toString();
             try {

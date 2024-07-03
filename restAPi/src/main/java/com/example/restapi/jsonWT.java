@@ -7,7 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Calendar;
 import java.util.Date;
 public class jsonWT {
-    private static final String SECRET = "salam";
+    private static final String SECRET = "sisso";
 
     public static String createToken(String userId, Date expireDate) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);

@@ -207,3 +207,165 @@ fabric.properties
 .idea/**/azureSettings.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,flutter,dart
+restApi/# Created by https://www.toptal.com/developers/gitignore/api/intellij,java,maven
+restApi/# Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java,maven
+restApi/
+restApi/### Intellij ###
+restApi/# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+restApi/# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+restApi/
+restApi/# User-specific stuff
+restApi/.idea/**/workspace.xml
+restApi/.idea/**/tasks.xml
+restApi/.idea/**/usage.statistics.xml
+restApi/.idea/**/dictionaries
+restApi/.idea/**/shelf
+restApi/
+restApi/# AWS User-specific
+restApi/.idea/**/aws.xml
+restApi/
+restApi/# Generated files
+restApi/.idea/**/contentModel.xml
+restApi/
+restApi/# Sensitive or high-churn files
+restApi/.idea/**/dataSources/
+restApi/.idea/**/dataSources.ids
+restApi/.idea/**/dataSources.local.xml
+restApi/.idea/**/sqlDataSources.xml
+restApi/.idea/**/dynamic.xml
+restApi/.idea/**/uiDesigner.xml
+restApi/.idea/**/dbnavigator.xml
+restApi/
+restApi/# Gradle
+restApi/.idea/**/gradle.xml
+restApi/.idea/**/libraries
+restApi/
+restApi/# Gradle and Maven with auto-import
+restApi/# When using Gradle or Maven with auto-import, you should exclude module files,
+restApi/# since they will be recreated, and may cause churn.  Uncomment if using
+restApi/# auto-import.
+restApi/# .idea/artifacts
+restApi/# .idea/compiler.xml
+restApi/# .idea/jarRepositories.xml
+restApi/# .idea/modules.xml
+restApi/# .idea/*.iml
+restApi/# .idea/modules
+restApi/# *.iml
+restApi/# *.ipr
+restApi/
+restApi/# CMake
+restApi/cmake-build-*/
+restApi/
+restApi/# Mongo Explorer plugin
+restApi/.idea/**/mongoSettings.xml
+restApi/
+restApi/# File-based project format
+restApi/*.iws
+restApi/
+restApi/# IntelliJ
+restApi/out/
+restApi/
+restApi/# mpeltonen/sbt-idea plugin
+restApi/.idea_modules/
+restApi/
+restApi/# JIRA plugin
+restApi/atlassian-ide-plugin.xml
+restApi/
+restApi/# Cursive Clojure plugin
+restApi/.idea/replstate.xml
+restApi/
+restApi/# SonarLint plugin
+restApi/.idea/sonarlint/
+restApi/
+restApi/# Crashlytics plugin (for Android Studio and IntelliJ)
+restApi/com_crashlytics_export_strings.xml
+restApi/crashlytics.properties
+restApi/crashlytics-build.properties
+restApi/fabric.properties
+restApi/
+restApi/# Editor-based Rest Client
+restApi/.idea/httpRequests
+restApi/
+restApi/# Android studio 3.1+ serialized cache file
+restApi/.idea/caches/build_file_checksums.ser
+restApi/
+restApi/### Intellij Patch ###
+restApi/# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
+restApi/
+restApi/# *.iml
+restApi/# modules.xml
+restApi/# .idea/misc.xml
+restApi/# *.ipr
+restApi/
+restApi/# Sonarlint plugin
+restApi/# https://plugins.jetbrains.com/plugin/7973-sonarlint
+restApi/.idea/**/sonarlint/
+restApi/
+restApi/# SonarQube Plugin
+restApi/# https://plugins.jetbrains.com/plugin/7238-sonarqube-community-plugin
+restApi/.idea/**/sonarIssues.xml
+restApi/
+restApi/# Markdown Navigator plugin
+restApi/# https://plugins.jetbrains.com/plugin/7896-markdown-navigator-enhanced
+restApi/.idea/**/markdown-navigator.xml
+restApi/.idea/**/markdown-navigator-enh.xml
+restApi/.idea/**/markdown-navigator/
+restApi/
+restApi/# Cache file creation bug
+restApi/# See https://youtrack.jetbrains.com/issue/JBR-2257
+restApi/.idea/$CACHE_FILE$
+restApi/
+restApi/# CodeStream plugin
+restApi/# https://plugins.jetbrains.com/plugin/12206-codestream
+restApi/.idea/codestream.xml
+restApi/
+restApi/# Azure Toolkit for IntelliJ plugin
+restApi/# https://plugins.jetbrains.com/plugin/8053-azure-toolkit-for-intellij
+restApi/.idea/**/azureSettings.xml
+restApi/
+restApi/### Java ###
+restApi/# Compiled class file
+restApi/*.class
+restApi/
+restApi/# Log file
+restApi/*.log
+restApi/
+restApi/# BlueJ files
+restApi/*.ctxt
+restApi/
+restApi/# Mobile Tools for Java (J2ME)
+restApi/.mtj.tmp/
+restApi/
+restApi/# Package Files #
+restApi/*.jar
+restApi/*.war
+restApi/*.nar
+restApi/*.ear
+restApi/*.zip
+restApi/*.tar.gz
+restApi/*.rar
+restApi/
+restApi/# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+restApi/hs_err_pid*
+restApi/replay_pid*
+restApi/
+restApi/### Maven ###
+restApi/target/
+restApi/pom.xml.tag
+restApi/pom.xml.releaseBackup
+restApi/pom.xml.versionsBackup
+restApi/pom.xml.next
+restApi/release.properties
+restApi/dependency-reduced-pom.xml
+restApi/buildNumber.properties
+restApi/.mvn/timing.properties
+restApi/# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+restApi/.mvn/wrapper/maven-wrapper.jar
+restApi/
+restApi/# Eclipse m2e generated files
+restApi/# Eclipse Core
+restApi/.project
+restApi/# JDT-specific (Eclipse Java Development Tools)
+restApi/.classpath
+restApi/
+restApi/# End of https://www.toptal.com/developers/gitignore/api/intellij,java,maven

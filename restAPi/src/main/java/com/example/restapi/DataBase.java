@@ -55,15 +55,23 @@ public class DataBase {
                 + "wordid TEXT,"
                 + "userid TEXT,"
                 + "progress DOUBLE,"
-                + "PRIMARY KEY (wordid, userid)"
+                + "PRIMARY KEY (wordid, userid),"
+                + "FOREIGN KEY (wordid) REFERENCES word(id) ON DELETE CASCADE ON UPDATE CASCADE,"
+                + "FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE"
                 + ");";
-
+        String createLessonTable = "create table if not exists lesson("
+                +"id Text primary key,"
+                +"userid Text,"
+                +"data Text,"
+                + "FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE"
+                +");";
         try {
             Statement stmt = connection.createStatement();
             // create new tables
             stmt.execute(createUserTable);
             stmt.execute(createWordTable);
             stmt.execute(createWordUserTable);
+            stmt.execute(createLessonTable);
             System.out.println("Tables created or already exist.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -318,9 +326,25 @@ public class DataBase {
         String query = "select id from word where actword = '"+actWord+"' and meaning = '"+meaning+"' and wordlang = '"+wordLang+"' and meanLang = '"+meaningLang+"' ";
         PreparedStatement stmt = connection.prepareStatement(query);
         ResultSet rs = stmt.executeQuery();
-        if(rs.wasNull()){
-            throw new SQLException();
-        }
+        rs.next();
+        return rs.getString(1);
+    }
+
+//    lesson
+    public static void addLesson(String lessonId,String userId , String data) throws SQLException {
+        String query = "insert into lesson (id, userid, data) VALUES (?,?,?);";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, lessonId);
+        stmt.setString(2, userId);
+        stmt.setString(3, data);
+        stmt.executeUpdate();
+    }
+
+    public static String getLesson(String lessonId) throws SQLException {
+        String query = "select data from lesson where id = ?";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, lessonId);
+        ResultSet rs = stmt.executeQuery();
         rs.next();
         return rs.getString(1);
     }
