@@ -152,6 +152,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  loading_indicator:
+    dependency: "direct main"
+    description:
+      name: loading_indicator
+      sha256: a101ffb2aa3e646137d7810bfa90b50525dd3f72c01235b6df7491cf6af6f284
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
   matcher:
     dependency: transitive
     description:
@@ -381,6 +389,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  wave_loading_indicator:
+    dependency: "direct main"
+    description:
+      name: wave_loading_indicator
+      sha256: ac698921196ab3995e9c457fee3b6cf8d2ee881e301ea3e82d25a8b87ea603cb
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7"
   web_socket_channel:
     dependency: "direct main"
     description:
