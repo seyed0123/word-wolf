@@ -13,79 +13,120 @@ class Setting extends StatefulWidget {
 
 class _SettingState extends State<Setting> {
   late User user;
+  bool isLoading = true;
+
   late TextEditingController username = TextEditingController();
   late TextEditingController email = TextEditingController();
   late TextEditingController oldPass = TextEditingController();
   late TextEditingController newPass = TextEditingController();
 
   Future<void> getUser() async {
-    // user = User('1','seyed','123','seyed123ali123',200,8,100,true,2,'pro');
-    final String response = sendGetRequest(getToken() as String,'getUser') as String;
-    if(response == '') {
+    String? token = await getToken();
+    if (token == null) {
       return;
     }
+
+    final String response = await sendGetRequest(token, 'get_user');
+
     final Map<String, dynamic> data = jsonDecode(response);
     setState(() {
       user = User.fromJson(data);
+      isLoading = false;
+      username.text = user.username;
+      email.text = user.email;
     });
 
-    username.text = user.username;
-    email.text = user.email;
   }
 
-  void submitChanges(){
+  Future<void> submitChanges() async {
     Map<String, dynamic> user = {
       'username': username.text,
-      'password': oldPass.text,
+      'oldPassword': oldPass.text,
+      'newPassword': newPass.text,
       'email':email.text
     };
 
-    final response = sendRequest('',jsonEncode(user),'ChangeSetting') as String;
-    Map<String, dynamic> responseData = jsonDecode(response);
-    String message  = responseData['message'];
-    saveToken(responseData['token']);
-    if(message=='ok') {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Saved Successful'),
-            content: const Text('Information updated!'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+    String? token = await getToken();
+
+    try {
+      final response = await sendRequest(token!, jsonEncode(user), 'edit_user');
+      Map<String, dynamic> responseData = jsonDecode(response);
+      String message = responseData['message'] ?? '';
+
+      if (message == 'ok') {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Changed Successful'),
+                content: const Text('your information has been updated'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
-    }else{
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Saved Failed'),
-            content: const Text('Failed to Save. Please try again.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+        }
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('updating failed'),
+                content: Text(message),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text('An error occurred: $e'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
-  void logout(){
-    removeToken();
-    Navigator.pushReplacementNamed(context, '/');
+  Future<void> logout() async {
+    await removeToken();
+    navigateToLogin();
+  }
+
+  void navigateToLogin() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (Route<dynamic> route) => false);
+    });
   }
 
   @override
