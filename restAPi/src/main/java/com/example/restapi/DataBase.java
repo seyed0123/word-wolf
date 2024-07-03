@@ -109,12 +109,12 @@ public class DataBase {
             return false;
         }
     }
-    public static void changePassword(String username, String newPassword){
+    public static void changePassword(String id, String newPassword){
         try {
-            String query = "UPDATE users SET hash_password = ? WHERE name = ? ;";
+            String query = "UPDATE user SET password = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, hashPassword(newPassword));
-            stmt.setString(2,username);
+            stmt.setString(2,id);
             stmt.executeUpdate();
             System.out.println("Password changed");
 
@@ -123,12 +123,12 @@ public class DataBase {
             throw new RuntimeException(e);
         }
     }
-    public static void changeUsername(String username, String newUsername){
+    public static void changeUsername(String id, String newUsername){
         try {
-            String query = "UPDATE users SET name = ? WHERE name = ? ;";
+            String query = "UPDATE user SET username = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1,newUsername);
-            stmt.setString(2,username);
+            stmt.setString(2,id);
             stmt.executeUpdate();
             System.out.println("username changed");
 
@@ -137,12 +137,12 @@ public class DataBase {
             throw new RuntimeException(e);
         }
     }
-    public static void changeEmail(String username, String newEmail){
+    public static void changeEmail(String id, String newEmail){
         try {
-            String query = "UPDATE users SET email = ? WHERE name = ? ;";
+            String query = "UPDATE user SET email = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1,newEmail);
-            stmt.setString(2,username);
+            stmt.setString(2,id);
             stmt.executeUpdate();
             System.out.println("email changed");
 

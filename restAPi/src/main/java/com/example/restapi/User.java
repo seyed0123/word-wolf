@@ -41,6 +41,7 @@ public class User {
     }
 
     public void settingStrikeLevelName(){
+//        TODO: assign a name for set of strike levels
         this.strikeLevelName = "pro";
     }
 
