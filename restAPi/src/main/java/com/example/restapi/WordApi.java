@@ -89,4 +89,24 @@ public class WordApi {
         ret.put("message","ok");
         return ret.toString();
     }
+
+    @PostMapping("/search")
+    public String search(@RequestHeader(value = "Authorization") String token, @RequestBody String body) throws SQLException, JsonProcessingException {
+        DecodedJWT jwt = verifyToken(token);
+        String userId = jwt.getClaim("userid").asString();
+        Date expireDate = jwt.getClaim("expiredate").asDate();
+        JSONObject ret = new JSONObject();
+        JSONObject obj = new JSONObject(body);
+        String word = obj.getString("word");
+        String wordMeaning = obj.getString("wordMeaning");
+        String wordLang = obj.getString("wordLang");
+        String meaningLang = obj.getString("meaningLang");
+
+
+//        TODO: search a word using the meaning or actual word or lang or combination of them in the DB and return them to the user
+//          this code below just for testing the api. remove it :o
+        ArrayList<Word> words = DataBase.getPopularWords();
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(words);
+    }
 }
