@@ -172,11 +172,14 @@ class _PopularWordState extends State<popularWord> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Wrap(
+                spacing: 10.0,
+                runSpacing: 15.0,
+                alignment: WrapAlignment.center,
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 25, // Adjust the radius as needed
@@ -185,10 +188,17 @@ class _PopularWordState extends State<popularWord> {
                       const SizedBox(width: 10),
                       const Icon(Icons.arrow_forward),
                       const SizedBox(width: 10),
-                      Text(word.actualWord),
+                      Flexible(
+                        child: Text(
+                          word.actualWord,
+                          overflow: TextOverflow.clip,
+                          softWrap: true,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 25, // Adjust the radius as needed
@@ -197,14 +207,25 @@ class _PopularWordState extends State<popularWord> {
                       const SizedBox(width: 10),
                       const Icon(Icons.arrow_forward),
                       const SizedBox(width: 10),
-                      Text(word.meaning),
+                      Flexible(
+                        child: Text(
+                          word.meaning,
+                          overflow: TextOverflow.clip,
+                          softWrap: true,
+                        ),
+                      ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () {
-                      addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
-                    },
-                    icon: const Icon(Icons.add_box),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
+                        },
+                        icon: const Icon(Icons.add_box),
+                      ),
+                    ],
                   ),
                 ],
               ),

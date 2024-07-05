@@ -335,39 +335,60 @@ class _SearchState extends State<Search> {
                         ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    child: Wrap(
+                      spacing: 10.0,
+                      runSpacing: 15.0,
+                      alignment: WrapAlignment.center,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             CircleAvatar(
-                              radius: 25, // Adjust the radius as needed
+                              radius: 15, // Adjust the radius as needed
                               backgroundImage: AssetImage('assets/flag_of_${word.wordLang}.png'), // Replace with your asset path
                             ),
                             const SizedBox(width: 10),
                             const Icon(Icons.arrow_forward),
                             const SizedBox(width: 10),
-                            Text(word.actualWord),
+                            Flexible(
+                              child: Text(
+                                  word.actualWord,
+                                  overflow: TextOverflow.clip,
+                                  softWrap: true,
+                              ),
+                            ),
                           ],
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircleAvatar(
-                              radius: 25, // Adjust the radius as needed
+                              radius: 15, // Adjust the radius as needed
                               backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
                             ),
                             const SizedBox(width: 10),
                             const Icon(Icons.arrow_forward),
                             const SizedBox(width: 10),
-                            Text(word.meaning),
+                            Flexible(
+                              child: Text(
+                                word.meaning,
+                                overflow: TextOverflow.clip,
+                                softWrap: true,
+                              ),
+                            ),
                           ],
                         ),
-                        IconButton(
-                          onPressed: () {
-                            addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
-                          },
-                          icon: const Icon(Icons.add_box),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
+                              },
+                              icon: const Icon(Icons.add_box),
+                            ),
+                          ],
                         ),
                       ],
                     ),
