@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:wave_loading_indicator/wave_progress.dart';
 import 'package:word_wolf/words/word.dart';
 import '../request.dart';
 
@@ -139,7 +140,16 @@ class _PopularWordState extends State<popularWord> {
         title: const Text('Word Wolf'),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: WaveProgress(
+                borderSize: 3.0,
+                size: 180,
+                borderColor: Colors.redAccent,
+                foregroundWaveColor: Colors.greenAccent,
+                backgroundWaveColor: Colors.blueAccent,
+                progress: 30, // [0-100]
+                innerPadding: 10, // padding between border and waves
+              ),
+             )
           : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
