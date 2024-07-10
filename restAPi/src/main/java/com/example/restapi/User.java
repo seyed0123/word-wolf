@@ -46,13 +46,14 @@ public class User {
         }
         return switch (strikeLevel) {
             case 0 -> "Clown";
-            case 1 -> "Nobe";
+            case 1 -> "Noob";
             case 2 -> "Novice";
-            case 3 -> "Sigma";
-            case 4 -> "Chad";
-            case 5 -> "Absolute chad";
-            case 6 -> "Giga chad";
-            case 7 -> "Absolute Giga chad";
+            case 3 -> "Average";
+            case 4 -> "Sigma";
+            case 5 -> "Chad";
+            case 6 -> "Absolute chad";
+            case 7 -> "Giga chad";
+            case 8 -> "Absolute Giga chad";
             default -> "";
         };
     }
