@@ -41,7 +41,7 @@ public class User {
     }
 
     public String settingStrikeLevelName(){
-        if (strike > 7) {
+        if (strike > 8) {
             return "Absolute Giga Chad";
         }
         return switch (strikeLevel) {
@@ -51,9 +51,9 @@ public class User {
             case 3 -> "Average";
             case 4 -> "Sigma";
             case 5 -> "Chad";
-            case 6 -> "Absolute chad";
-            case 7 -> "Giga chad";
-            case 8 -> "Absolute Giga chad";
+            case 6 -> "Absolute_chad";
+            case 7 -> "Giga_chad";
+            case 8 -> "Absolute_Giga_chad";
             default -> "";
         };
     }
