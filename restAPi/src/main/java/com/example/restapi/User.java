@@ -37,12 +37,24 @@ public class User {
         this.level = level;
         this.strike = strike;
         this.isPracticeToday = isPracticeToday;
-        settingStrikeLevelName();
+        this.strikeLevelName= settingStrikeLevelName();
     }
 
-    public void settingStrikeLevelName(){
-//        TODO: assign a name for set of strike levels
-        this.strikeLevelName = "pro";
+    public String settingStrikeLevelName(){
+        if (strike > 7) {
+            return "Absolute Giga Chad";
+        }
+        return switch (strikeLevel) {
+            case 0 -> "Clown";
+            case 1 -> "Nobe";
+            case 2 -> "Novice";
+            case 3 -> "Sigma";
+            case 4 -> "Chad";
+            case 5 -> "Absolute chad";
+            case 6 -> "Giga chad";
+            case 7 -> "Absolute Giga chad";
+            default -> "";
+        };
     }
 
     public String getId() {

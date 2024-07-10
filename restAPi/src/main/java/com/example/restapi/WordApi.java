@@ -102,10 +102,7 @@ public class WordApi {
         String wordLang = obj.getString("wordLang");
         String meaningLang = obj.getString("meaningLang");
 
-
-//        TODO: search a word using the meaning or actual word or lang or combination of them in the DB and return them to the user
-//          this code below just for testing the api. remove it :o
-        ArrayList<Word> words = DataBase.getPopularWords();
+        ArrayList<Word> words = DataBase.searchWords(word, wordMeaning, wordLang, meaningLang);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(words);
     }

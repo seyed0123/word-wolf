@@ -330,6 +330,45 @@ public class DataBase {
         return rs.getString(1);
     }
 
+    public static ArrayList<Word> searchWords(String word, String wordMeaning, String wordLang, String meaningLang) {
+        ArrayList<Word> result = new ArrayList<>();
+
+        String query = "SELECT * FROM word WHERE " +
+                "(? IS NULL OR actword LIKE ?) " +
+                "AND (? IS NULL OR meaning LIKE ?) " +
+                "AND (? IS NULL OR wordLang = ?) " +
+                "AND (? IS NULL OR meanLang = ?)";
+
+        try    {
+
+            word = word != null && word.isEmpty() ? null : word;
+            wordMeaning = wordMeaning != null && wordMeaning.isEmpty() ? null : wordMeaning;
+            wordLang = wordLang != null && wordLang.equals("Any") ? null : wordLang;
+            meaningLang = meaningLang != null && meaningLang.equals("Any") ? null : meaningLang;
+
+
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setString(1, word);
+            pstmt.setString(2, word != null ? "%" + word + "%" : null);
+            pstmt.setString(3, wordMeaning);
+            pstmt.setString(4, wordMeaning != null ? "%" + wordMeaning + "%" : null);
+            pstmt.setString(5, wordLang);
+            pstmt.setString(6, wordLang);
+            pstmt.setString(7, meaningLang);
+            pstmt.setString(8, meaningLang);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                result.add(new Word(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),0));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
 //    lesson
     public static void addLesson(String lessonId,String userId , String data) throws SQLException {
         String query = "insert into lesson (id, userid, data) VALUES (?,?,?);";
@@ -348,4 +387,6 @@ public class DataBase {
         rs.next();
         return rs.getString(1);
     }
+
+
 }
