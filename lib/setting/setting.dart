@@ -166,125 +166,136 @@ class _SettingState extends State<Setting> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text('Word Wolf'),
-            ElevatedButton(onPressed: (){submitChanges();}, style:buttonStyle , child: const Text('Sumbit Changes')),
-            ElevatedButton(onPressed: (){logout();}, style:buttonStyle , child: const Text('logout')),
           ],
         ),
       ),
-      body: GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          padding: EdgeInsets.all(10),
-          childAspectRatio: 2,
-        children: [
-            Center(
-              child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: username,
-                cursorColor: Colors.blueAccent,
-                style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+      body: Wrap(
+            spacing: 10.0,
+          runSpacing: 10.0,
+          alignment: WrapAlignment.center,
+          children:[
+            Column(
+                children: [
+                GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.all(10),
+                    childAspectRatio: 2,
+                  children: [
+                      Center(
+                        child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: username,
+                          cursorColor: Colors.blueAccent,
+                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                          ),
+                          labelText: 'username',
+                          labelStyle: const TextStyle(color: Colors.blueAccent),
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          prefixIcon: const Icon(Icons.person, color: Colors.blueAccent),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: email,
+                          cursorColor: Colors.blueAccent,
+                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                            ),
+                            labelText: 'email',
+                            labelStyle: const TextStyle(color: Colors.blueAccent),
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.email, color: Colors.blueAccent),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: newPass,
+                          obscureText: true,
+                          cursorColor: Colors.blueAccent,
+                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                            ),
+                            labelText: 'new pass',
+                            labelStyle: const TextStyle(color: Colors.blueAccent),
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.password_outlined, color: Colors.blueAccent),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: oldPass,
+                          obscureText: true,
+                          cursorColor: Colors.blueAccent,
+                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
+                            ),
+                            labelText: 'old pass',
+                            labelStyle: const TextStyle(color: Colors.blueAccent),
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            prefixIcon: const Icon(Icons.password_outlined, color: Colors.blueAccent),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                ),
-                labelText: 'username',
-                labelStyle: const TextStyle(color: Colors.blueAccent),
-                hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.person, color: Colors.blueAccent),
-                ),
-              ),
+              ],
             ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: email,
-                cursorColor: Colors.blueAccent,
-                style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                  ),
-                  labelText: 'email',
-                  labelStyle: const TextStyle(color: Colors.blueAccent),
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.email, color: Colors.blueAccent),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: newPass,
-                obscureText: true,
-                cursorColor: Colors.blueAccent,
-                style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                  ),
-                  labelText: 'new pass',
-                  labelStyle: const TextStyle(color: Colors.blueAccent),
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.password_outlined, color: Colors.blueAccent),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: oldPass,
-                obscureText: true,
-                cursorColor: Colors.blueAccent,
-                style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                  ),
-                  labelText: 'old pass',
-                  labelStyle: const TextStyle(color: Colors.blueAccent),
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.password_outlined, color: Colors.blueAccent),
-                ),
-              ),
-            ),
-          ),
-        ]
-      ),
+            ElevatedButton(onPressed: (){submitChanges();}, style:buttonStyle , child: const Text('Submit Changes')),
+            ElevatedButton(onPressed: (){logout();}, style:buttonStyle , child: const Text('logout')),
+          ],
+      )
     );
   }
 }

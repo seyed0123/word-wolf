@@ -7,6 +7,7 @@ import 'package:word_wolf/words/word_list.dart';
 import 'package:word_wolf/lesson/lesson_page.dart';
 import 'package:word_wolf/words/popular_word.dart';
 import 'package:word_wolf/setting/setting.dart';
+import 'package:word_wolf/words/search_word.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/lesson':(context) => const Lesson_page(),
         '/popular_word':(context) =>const popularWord(),
         '/setting':(context) => const Setting(),
+        '/search':(context) => const Search(),
       },
     );
   }

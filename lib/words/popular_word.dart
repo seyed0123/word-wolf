@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:wave_loading_indicator/wave_progress.dart';
 import 'package:word_wolf/words/word.dart';
 import '../request.dart';
 
@@ -139,7 +140,16 @@ class _PopularWordState extends State<popularWord> {
         title: const Text('Word Wolf'),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: WaveProgress(
+                borderSize: 3.0,
+                size: 180,
+                borderColor: Colors.redAccent,
+                foregroundWaveColor: Colors.greenAccent,
+                backgroundWaveColor: Colors.blueAccent,
+                progress: 30, // [0-100]
+                innerPadding: 10, // padding between border and waves
+              ),
+             )
           : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,11 +172,14 @@ class _PopularWordState extends State<popularWord> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Wrap(
+                spacing: 10.0,
+                runSpacing: 15.0,
+                alignment: WrapAlignment.center,
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 25, // Adjust the radius as needed
@@ -175,10 +188,17 @@ class _PopularWordState extends State<popularWord> {
                       const SizedBox(width: 10),
                       const Icon(Icons.arrow_forward),
                       const SizedBox(width: 10),
-                      Text(word.actualWord),
+                      Flexible(
+                        child: Text(
+                          word.actualWord,
+                          overflow: TextOverflow.clip,
+                          softWrap: true,
+                        ),
+                      ),
                     ],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       CircleAvatar(
                         radius: 25, // Adjust the radius as needed
@@ -187,14 +207,25 @@ class _PopularWordState extends State<popularWord> {
                       const SizedBox(width: 10),
                       const Icon(Icons.arrow_forward),
                       const SizedBox(width: 10),
-                      Text(word.meaning),
+                      Flexible(
+                        child: Text(
+                          word.meaning,
+                          overflow: TextOverflow.clip,
+                          softWrap: true,
+                        ),
+                      ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () {
-                      addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
-                    },
-                    icon: const Icon(Icons.add_box),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
+                        },
+                        icon: const Icon(Icons.add_box),
+                      ),
+                    ],
                   ),
                 ],
               ),
