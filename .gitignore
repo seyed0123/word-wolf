@@ -16,7 +16,7 @@ pubspec.lock
 doc/api/
 
 # dotenv environment variables file
-.env*
+#assets/env.txt
 
 # Avoid committing generated Javascript files:
 *.dart.js
@@ -32,7 +32,7 @@ doc/api/
 
 ### Dart Patch ###
 # dotenv environment variables file
-.env
+#assets/env.txt
 
 ### Flutter ###
 # Flutter/Dart/Pub related
@@ -41,7 +41,6 @@ doc/api/
 .pub-cache/
 .pub/
 coverage/
-lib/generated_plugin_registrant.dart
 # For library packages, don’t commit the pubspec.lock file.
 # Regenerating the pubspec.lock file lets you test your package against the latest compatible versions of its dependencies.
 # See https://dart.dev/guides/libraries/private-files#pubspeclock

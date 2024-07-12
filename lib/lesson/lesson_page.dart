@@ -217,6 +217,12 @@ class _Lesson_pageState extends State<Lesson_page> {
     );
   }
 
+  Color getProgressColor(double progress) {
+    int red = (255 * (1 - progress)).floor();
+    int green = (255 * progress).floor();
+    int blue = (1024 * (-1 * (progress - 1) * progress)).floor();
+    return Color.fromRGBO(red, green, blue, 1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,24 +241,40 @@ class _Lesson_pageState extends State<Lesson_page> {
           ),
         )
         :Scaffold(
-          backgroundColor: hexToColor('F9F7F7'),
+          backgroundColor: hexToColor('E1F0DA'),
           appBar: AppBar(
-          backgroundColor: hexToColor('DBE2EF'),
+          backgroundColor: hexToColor('749BC2'),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              const Flexible(
-                child: Text('Word Wolf', overflow: TextOverflow.ellipsis),
+              Flexible(
+                child: Text(
+                  'Word Wolf',
+                  style: GoogleFonts.baskervville(
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w200,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(2, 2),
+                          blurRadius: 3,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               Flexible(
                 child: LinearPercentIndicator(
-                  // width: MediaQuery.of(context).size.width * 0.4, // Adjusted width to fit better
+                  animateFromLastPercent: true,
                   animation: true,
                   lineHeight: 20.0,
                   animationDuration: 1000,
                   percent: lesson.progress / 100,
                   linearStrokeCap: LinearStrokeCap.roundAll,
-                  progressColor: hexToColor('112D4E'),
+                  progressColor: getProgressColor(lesson.progress / 100),
                 ),
               ),
               Flexible(
