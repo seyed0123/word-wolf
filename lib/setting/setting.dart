@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:word_wolf/home/User.dart';
 import 'package:word_wolf/request.dart';
 
@@ -145,7 +146,7 @@ class _SettingState extends State<Setting> {
   }
 
   ButtonStyle buttonStyle = ElevatedButton.styleFrom(
-    primary: Colors.lightBlueAccent, // Background color
+    primary: Colors.blue, // Background color
     onPrimary: Colors.white, // Text color
     elevation: 5, // Shadow depth
     shape: RoundedRectangleBorder(
@@ -157,16 +158,35 @@ class _SettingState extends State<Setting> {
       fontSize: 16, // Text size
     ),
   );
-
+  Color hexToColor(String hexCode) {
+    final hexColor = hexCode;
+    return Color(int.parse('FF$hexColor', radix: 16));
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text('Word Wolf'),
-          ],
+        backgroundColor: hexToColor('749BC2'),
+        title: Center(
+          child: Text(
+            'Word Wolf',
+            style: GoogleFonts.baskervville(
+              textStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w200,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    offset: const Offset(2, 2),
+                    blurRadius: 3,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+                letterSpacing: 2,
+                wordSpacing: 4,
+              ),
+            ),
+          ),
         ),
       ),
       body: Wrap(

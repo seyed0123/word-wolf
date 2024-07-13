@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:wave_loading_indicator/wave_progress.dart';
 import 'package:word_wolf/words/word.dart';
 import '../request.dart';
@@ -137,7 +138,28 @@ class _PopularWordState extends State<popularWord> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Word Wolf'),
+        backgroundColor: hexToColor('749BC2'),
+        title: Center(
+          child: Text(
+            'Word Wolf',
+            style: GoogleFonts.baskervville(
+              textStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w200,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    offset: const Offset(2, 2),
+                    blurRadius: 3,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+                letterSpacing: 2,
+                wordSpacing: 4,
+              ),
+            ),
+          ),
+        ),
       ),
       body: isLoading
           ? Center(child: WaveProgress(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:word_wolf/request.dart';
 import 'dart:convert';
 
@@ -125,11 +126,39 @@ class _Sign_upState extends State<Sign_up> {
     }
 
   }
+  
+  Color hexToColor(String hexCode) {
+    final hexColor = hexCode;
+    return Color(int.parse('FF$hexColor', radix: 16));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Word Wolf')),
+      appBar: AppBar(
+        backgroundColor: hexToColor('749BC2'),
+        title: Center(
+          child: Text(
+            'Word Wolf',
+            style: GoogleFonts.baskervville(
+              textStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w200,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    offset: const Offset(2, 2),
+                    blurRadius: 3,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+                letterSpacing: 2,
+                wordSpacing: 4,
+              ),
+            ),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Padding(
