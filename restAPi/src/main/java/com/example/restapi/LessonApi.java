@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,30 +24,53 @@ public class LessonApi {
         DecodedJWT jwt = verifyToken(token);
         String userId = jwt.getClaim("userid").asString();
         Date expireDate = jwt.getClaim("expiredate").asDate();
-        //        TODO: generate a lesson for the user using it's id
-//                  A temp lesson for tessing the api and client
-        List<Word> words = new ArrayList<>();
-        words.add(new Word("123","hello","سلام","English","Persian",0));
-        words.add(new Word("123","egg","ei","English","German",0));
-        List<Question> questions = new ArrayList<>();
-        ArrayList<String> answers = new ArrayList<>();
-        answers.add("no");
-        answers.add("yes");
-        answers.add("hello");
-        answers.add("thanks");
-        questions.add(new Question("hey",answers,2));
-        questions.add(new Question("hello",answers,2));
-        questions.add(new Question("hallo",answers,2));
-        String id = UUID.randomUUID().toString();
-        Lesson lesson = new Lesson(id,questions,words);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String data = objectMapper.writeValueAsString(lesson);
         try {
+            List<Word> userWords = DataBase.getWords(userId);
+            List<Word> QWords = new ArrayList<>();
+            int selectWordProgress = 80;
+            List<Question> questions = new ArrayList<>();
+            int questionNumber = 6;
+
+            // select word
+            for (int i = 0; i < questionNumber; i++) {
+                for (int j = 0; j < userWords.size(); j++) {
+                    if (userWords.get(j).getProgress() >= selectWordProgress) {
+                        QWords.add(userWords.get(j));
+                        break;
+                    } else if (userWords.size() == j - 1) {
+                        selectWordProgress -= 20;
+                        i = -1;
+                    }
+                }
+                if (selectWordProgress < 0) break;
+            }
+
+            for (int i = 0; i < QWords.size(); i++) {
+                // select 3 wrong answers
+                ArrayList<String> answers = new ArrayList<>();
+                int correctAnsIndex = (int) ((Math.random() * 10)) % 4;
+                for (int j = 0; j < 4; j++) {
+                    if (j == correctAnsIndex) {
+                        answers.add(QWords.get(i).getMeaning());
+                    } else {
+                        int rand = (int) (Math.random() * userWords.size());
+                        if (rand != correctAnsIndex) answers.add(userWords.get(rand).getMeaning());
+                        else j--;
+                    }
+                }
+                questions.add(new Question("What is meaning of \"" + QWords.get(i).getActualWord() + "\" ?", answers, correctAnsIndex));
+            }
+
+            String id = UUID.randomUUID().toString();
+            Lesson lesson = new Lesson(id,questions,QWords);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String data = objectMapper.writeValueAsString(lesson);
+
             DataBase.addLesson(id,userId,data);
+            return data;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return data;
     }
 
     @PostMapping("/res_lesson")
@@ -65,9 +89,31 @@ public class LessonApi {
         ObjectMapper objectMapper = new ObjectMapper();
         Lesson lesson = objectMapper.readValue(DataBase.getLesson(lessonId), Lesson.class);
 
-//       TODO: get the lesson data from db and analyse them with the lesson results that received from, client, update the user information such as strike,xp , strike_level_ is practice today and...
-//        update the progress of the words that the user study them in this lesson in word_user table
-//        and every updates that is necessary for this part. Good luck :)
-//
+        List<Word> words = lesson.getWords();
+        User user = DataBase.getUserByID(userId);
+        // update strike level
+        Date date1 = DataBase.getIsPracticeToday();
+        Date date2 = new Date();
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        int fmt1 = Integer.parseInt(fmt.format(date1));
+        int fmt2 = Integer.parseInt(fmt.format(date2));
+        if(fmt2 - fmt1 == 1){
+            int strike = user.getStrike();
+            DataBase.setStrike(strike + 1);
+        }
+
+        // update words progress & xp & todayPractice
+        int xp = 0;
+        for (int i = 0; i < ansList.size(); i++) {
+            if (ansList.get(i)) {
+                xp++;
+                int newP = DataBase.getProgress(userId, words.get(i).getID());
+                if (newP < 100)
+                    DataBase.setProgress(userId, words.get(i).getID(), newP + 10);
+            }
+        }
+        if (success) xp += 10;
+        user.setXp(xp);
+        user.setPracticeToday();
     }
 }

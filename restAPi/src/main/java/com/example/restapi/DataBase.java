@@ -7,9 +7,11 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.UUID;
 
 public class DataBase {
+
+    // TODO: complete database functions (some of functions are empty)
+    //     & change isPracticeToday to "Date" Object in database table
     private static Connection connection;
     public static void connect() {
         try {
@@ -28,7 +30,6 @@ public class DataBase {
             throw new RuntimeException(e);
         }
     }
-
     public static void createTables() {
         // SQL statements for creating tables
         String createUserTable = "CREATE TABLE IF NOT EXISTS user ("
@@ -77,7 +78,6 @@ public class DataBase {
             System.out.println(e.getMessage());
         }
     }
-
 
     // user
     public static boolean usernameExist(String username) {
@@ -193,7 +193,6 @@ public class DataBase {
         rs.next();
         return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),rs.getInt(8),rs.getBoolean(9));
     }
-
     public static User getUserByID(String id) throws SQLException {
         String query = "SELECT * from user where id = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
@@ -202,7 +201,6 @@ public class DataBase {
         rs.next();
         return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),rs.getInt(8),rs.getBoolean(9));
     }
-
     public static String getUsernameByID(int deviceID){
         try {
             String query = "SELECT name from users where deviceID = ?";
@@ -227,16 +225,32 @@ public class DataBase {
             throw new RuntimeException(e);
         }
     }
-
     public static void deleteUser(){}
     public static boolean rememberMe(String deviceId) {
         return false;
     }
-    public static User getUser(String deviceID) {
-        return new User("");
-    }
-    // word
+    public static void setIsPracticeToday() {
 
+    }
+    public static Date getIsPracticeToday() {
+        return new Date(100);
+    }
+    public static void setStrikeLevel(int strikeLevel) {
+    }
+    public static void setXp(int xp) {
+    }
+    public static void setLevel(int level) {
+    }
+    public static void setStrike(int strike) {
+    }
+    public static void setProgress(String userID, String WordID, int progress) {
+
+    }
+    public static int getProgress(String userID, String wordID) {
+        return 0;
+    }
+
+    // word
     public static void addWord(String ID, String actualWord, String meaning, String wordLang, String meaningLang) throws SQLException {
         String query = "insert into word (id, actword, meaning, wordlang, meanLang) values (?,?,?,?,?)";
         PreparedStatement stmt = connection.prepareStatement(query);
@@ -260,7 +274,6 @@ public class DataBase {
         stmt.setString(2, wordId);
         stmt.executeUpdate();
     }
-
     public static void addWordUser(String wordID,String userId) throws SQLException {
         String query = "insert into word_user (wordid, userid, progress) VALUES (?,?,?)";
         PreparedStatement stmt = connection.prepareStatement(query);
@@ -301,8 +314,6 @@ public class DataBase {
         }
         return ret;
     }
-
-
     public static ArrayList<Word> getWords(String userId) throws SQLException {
         String query = "select * from word_user where userid = ?;";
         PreparedStatement stmt = connection.prepareStatement(query);
@@ -321,7 +332,6 @@ public class DataBase {
         }
         return ret;
     }
-
     public static String getWordMean(String actWord,String meaning ,String wordLang,String meaningLang) throws SQLException {
         String query = "select id from word where actword = '"+actWord+"' and meaning = '"+meaning+"' and wordlang = '"+wordLang+"' and meanLang = '"+meaningLang+"' ";
         PreparedStatement stmt = connection.prepareStatement(query);
@@ -329,7 +339,6 @@ public class DataBase {
         rs.next();
         return rs.getString(1);
     }
-
     public static ArrayList<Word> searchWords(String word, String wordMeaning, String wordLang, String meaningLang) {
         ArrayList<Word> result = new ArrayList<>();
 
@@ -378,7 +387,6 @@ public class DataBase {
         stmt.setString(3, data);
         stmt.executeUpdate();
     }
-
     public static String getLesson(String lessonId) throws SQLException {
         String query = "select data from lesson where id = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
