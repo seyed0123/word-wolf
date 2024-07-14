@@ -48,7 +48,7 @@ public class UserApi {
             }
             ret.put("message","ok");
             return ret.toString();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             ret.put("message","failed due to:"+e.getMessage());
             return ret.toString();
         }

@@ -15,12 +15,13 @@ public class User {
     private int xp;
     private int level;
     private int strike;
-    private String isPracticeToday;
+    private boolean isPracticeToday;
+    private String PracticeToday;
 
     public User (String username) {
         this.username = username;
     }
-    public User(String id, String username, String password, String email, int strikeLevel, int xp, int level, int strike, boolean isPracticeToday) {
+    public User(String id, String username, String password, String email, int strikeLevel, int xp, int level, int strike, String isPracticeToday) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -29,6 +30,8 @@ public class User {
         this.xp = xp;
         this.level = level;
         this.strike = strike;
+        this.PracticeToday = isPracticeToday;
+        this.isPracticeToday = isPracticeToday();
         this.strikeLevelName= settingStrikeLevelName();
     }
 
@@ -70,7 +73,7 @@ public class User {
         Date date = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         String dateStr = fmt.format(date);
-        this.isPracticeToday = dateStr;
+        this.PracticeToday = dateStr;
         DataBase.setIsPracticeToday(this.id, dateStr);
     }
     public String settingStrikeLevelName(){
@@ -123,9 +126,13 @@ public class User {
         Date date = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         String dateStr = fmt.format(date);
-        return isPracticeToday.equals(dateStr);
+        return PracticeToday.equals(dateStr);
     }
     public String getPracticeDate() {
-        return isPracticeToday;
+        return PracticeToday;
+    }
+
+    public void setPracticeToday(boolean practiceToday) {
+        isPracticeToday = practiceToday;
     }
 }

@@ -32,7 +32,7 @@ public class Login {
             try {
                 ret.put("message","ok");
                 ret.put("token",createToken(getUserByUsername(username).getId()));
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 ret.put("message","login failed");
             }
             return ret.toString();
@@ -59,7 +59,7 @@ public class Login {
             ret.put("message","ok");
             ret.put("token",createToken(id));
             return ret.toString();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             ret.put("message","failed due to:"+e.getMessage());
             return ret.toString();
         }

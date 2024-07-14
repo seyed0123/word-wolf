@@ -107,7 +107,7 @@ public class LessonApi {
         for (int i = 0; i < ansList.size(); i++) {
             if (ansList.get(i)) {
                 xp++;
-                int newP = DataBase.getProgress(userId, words.get(i).getID());
+                double newP = DataBase.getProgress(userId, words.get(i).getID());
                 if (newP < 100)
                     DataBase.setProgress(userId, words.get(i).getID(), newP + 10);
             }

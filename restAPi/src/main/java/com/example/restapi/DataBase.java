@@ -6,7 +6,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 
 public class DataBase {
@@ -161,7 +163,7 @@ public class DataBase {
                 stmt.setInt(6, 0);
                 stmt.setInt(7,0);
                 stmt.setInt(8,0);
-                stmt.setBoolean(9, false);
+                stmt.setString(9, "00000001");
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -176,7 +178,7 @@ public class DataBase {
             rs.next();
             return new User(rs.getString(1),rs.getString(2),rs.getString(3),
                     rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),
-                    rs.getInt(8),rs.getBoolean(9));
+                    rs.getInt(8),rs.getString(9));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -190,7 +192,7 @@ public class DataBase {
             rs.next();
             return new User(rs.getString(1), rs.getString(2), rs.getString(3),
                     rs.getString(4), rs.getInt(5), rs.getInt(6), rs.getInt(7),
-                    rs.getInt(8), rs.getBoolean(9));
+                    rs.getInt(8), rs.getString(9));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -235,14 +237,14 @@ public class DataBase {
         try {
             String query = "UPDATE user SET xp = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, String.valueOf(xp));
+            stmt.setInt(1, xp);
             stmt.setString(2, userID);
             stmt.executeUpdate();
 
             // update level
             query = "UPDATE user SET level = ? WHERE id = ? ;";
             stmt = connection.prepareStatement(query);
-            stmt.setString(1, String.valueOf((int)Math.log(xp)));
+            stmt.setInt(1, (int)Math.log(xp));
             stmt.setString(2, userID);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -253,25 +255,25 @@ public class DataBase {
         try {
             String query = "UPDATE user SET strike = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, String.valueOf(strike));
+            stmt.setInt(1, strike);
             stmt.setString(2, userID);
             stmt.executeUpdate();
 
             // update level
             query = "UPDATE user SET strike_level = ? WHERE id = ? ;";
             stmt = connection.prepareStatement(query);
-            stmt.setString(1, String.valueOf((int)(Math.log(strike)/Math.log(2))));
+            stmt.setInt(1, (int)(Math.log(strike)/Math.log(2)));
             stmt.setString(2, userID);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public static void setProgress(String userID, String wordID, int progress) {
+    public static void setProgress(String userID, String wordID, double progress) {
         try {
             String query = "UPDATE word_user SET progress = ? WHERE wordid = ? AND userid = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, String.valueOf(progress));
+            stmt.setDouble(1, progress);
             stmt.setString(2, wordID);
             stmt.setString(3, userID);
             stmt.executeUpdate();
@@ -279,7 +281,7 @@ public class DataBase {
             throw new RuntimeException(e);
         }
     }
-    public static int getProgress(String userID, String wordID) {
+    public static double getProgress(String userID, String wordID) {
         try {
             String query = "SELECT progress from word_user WHERE wordid = ? AND userid = ? ";
             PreparedStatement stmt = connection.prepareStatement(query);
@@ -287,7 +289,7 @@ public class DataBase {
             stmt.setString(2, userID);
             ResultSet rs = stmt.executeQuery();
             rs.next();
-            return Integer.parseInt(rs.getString(1));
+            return rs.getDouble(1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
