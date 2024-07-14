@@ -92,14 +92,14 @@ public class LessonApi {
         List<Word> words = lesson.getWords();
         User user = DataBase.getUserByID(userId);
         // update strike level
-        Date date1 = DataBase.getIsPracticeToday();
+        String date1 = user.getPracticeDate();
         Date date2 = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
-        int fmt1 = Integer.parseInt(fmt.format(date1));
-        int fmt2 = Integer.parseInt(fmt.format(date2));
-        if(fmt2 - fmt1 == 1){
+        if(Integer.parseInt(fmt.format(date2)) - Integer.parseInt(date1) == 1){
             int strike = user.getStrike();
-            DataBase.setStrike(strike + 1);
+            user.setStrike(strike + 1);
+        } else {
+            user.setStrike(1);
         }
 
         // update words progress & xp & todayPractice

@@ -2,6 +2,9 @@ package com.example.restapi;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class User {
     private String id;
     private String username;
@@ -12,7 +15,7 @@ public class User {
     private int xp;
     private int level;
     private int strike;
-    private boolean isPracticeToday;
+    private String isPracticeToday;
 
     public User (String username) {
         this.username = username;
@@ -26,7 +29,6 @@ public class User {
         this.xp = xp;
         this.level = level;
         this.strike = strike;
-        this.isPracticeToday = isPracticeToday;
         this.strikeLevelName= settingStrikeLevelName();
     }
 
@@ -48,26 +50,28 @@ public class User {
     }
     public void setXp(int xp) {
         this.xp = xp;
-        DataBase.setXp(xp);
+        DataBase.setXp(id, xp);
         int newLevel = (int)Math.log(xp);
         this.setLevel(newLevel);
     }
     public void setLevel(int level) {
         this.level = level;
-        DataBase.setLevel(level);
     }
     public void setStrike(int strike) {
         this.strike = strike;
-        DataBase.setStrike(strike);
+        DataBase.setStrike(id, strike);
         int newStrikeLevel = (int)(Math.log(strike)/Math.log(2));
         setStrikeLevel(newStrikeLevel);
     }
     public void setStrikeLevel(int strikeLevel) {
         this.strikeLevel = strikeLevel;
-        DataBase.setStrikeLevel(strikeLevel);
     }
     public void setPracticeToday() {
-        isPracticeToday = true;
+        Date date = new Date();
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        String dateStr = fmt.format(date);
+        this.isPracticeToday = dateStr;
+        DataBase.setIsPracticeToday(this.id, dateStr);
     }
     public String settingStrikeLevelName(){
         if (strike > 8) {
@@ -116,6 +120,12 @@ public class User {
         return strike;
     }
     public boolean isPracticeToday() {
+        Date date = new Date();
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        String dateStr = fmt.format(date);
+        return isPracticeToday.equals(dateStr);
+    }
+    public String getPracticeDate() {
         return isPracticeToday;
     }
 }

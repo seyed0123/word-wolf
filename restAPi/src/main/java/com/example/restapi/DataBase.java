@@ -5,13 +5,11 @@ import com.fasterxml.uuid.UUIDGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class DataBase {
-
-    // TODO: complete database functions (some of functions are empty)
-    //     & change isPracticeToday to "Date" Object in database table
     private static Connection connection;
     public static void connect() {
         try {
@@ -41,7 +39,7 @@ public class DataBase {
                 + "xp INTEGER,"
                 + "level INTEGER,"
                 + "strike INTEGER,"
-                + "is_practice_today BOOLEAN"
+                + "is_practice_today TEXT" //date saved as yyyyMMdd format
                 + ");";
 
         String createWordTable = "CREATE TABLE IF NOT EXISTS word ("
@@ -89,7 +87,7 @@ public class DataBase {
             rs.next();
             return rs.getBoolean(1);
         } catch (SQLException e) {
-            return true;
+            throw new RuntimeException(e);
         }
     }
     public static String hashPassword(String password) {
@@ -124,10 +122,8 @@ public class DataBase {
             stmt.setString(1, hashPassword(newPassword));
             stmt.setString(2,id);
             stmt.executeUpdate();
-            System.out.println("Password changed");
 
         } catch (SQLException e) {
-            System.out.println("Password didn't changed");
             throw new RuntimeException(e);
         }
     }
@@ -138,10 +134,7 @@ public class DataBase {
             stmt.setString(1,newUsername);
             stmt.setString(2,id);
             stmt.executeUpdate();
-            System.out.println("username changed");
-
         } catch (SQLException e) {
-            System.out.println("username didn't changed");
             throw new RuntimeException(e);
         }
     }
@@ -152,63 +145,52 @@ public class DataBase {
             stmt.setString(1,newEmail);
             stmt.setString(2,id);
             stmt.executeUpdate();
-            System.out.println("email changed");
-
         } catch (SQLException e) {
-            System.out.println("email didn't changed");
             throw new RuntimeException(e);
         }
     }
-    public static void addUser(String id,String username, String email, String password) throws SQLException {
-            String query = "insert into user (id, username, password, email,strike_level, xp,level,strike,is_practice_today) values (?, ?, ?, ?,?, ?, ?, ?,?)";
-            PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, id);
-            stmt.setString(2,username);
-            stmt.setString(3, hashPassword(password));
-            stmt.setString(4,email);
-            stmt.setInt(5,0);
-            stmt.setInt(6, 0);
-            stmt.setInt(7,0);
-            stmt.setInt(8,0);
-            stmt.setBoolean(9, false);
-            stmt.executeUpdate();
+    public static void addUser(String id,String username, String email, String password) {
+            try {
+                String query = "insert into user (id, username, password, email,strike_level, xp,level,strike,is_practice_today) values (?, ?, ?, ?,?, ?, ?, ?,?)";
+                PreparedStatement stmt = connection.prepareStatement(query);
+                stmt.setString(1, id);
+                stmt.setString(2,username);
+                stmt.setString(3, hashPassword(password));
+                stmt.setString(4,email);
+                stmt.setInt(5,0);
+                stmt.setInt(6, 0);
+                stmt.setInt(7,0);
+                stmt.setInt(8,0);
+                stmt.setBoolean(9, false);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
     }
-    public static int getDeviceID(String username){
+    public static User getUserByUsername(String username) {
         try {
-            String query = "SELECT deviceID from users where name = ?";
+            String query = "SELECT * from user where username = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             rs.next();
-            return rs.getInt(1);
+            return new User(rs.getString(1),rs.getString(2),rs.getString(3),
+                    rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),
+                    rs.getInt(8),rs.getBoolean(9));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public static User getUserByUsername(String username) throws SQLException {
-        String query = "SELECT * from user where username = ?";
-        PreparedStatement stmt = connection.prepareStatement(query);
-        stmt.setString(1, username);
-        ResultSet rs = stmt.executeQuery();
-        rs.next();
-        return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),rs.getInt(8),rs.getBoolean(9));
-    }
-    public static User getUserByID(String id) throws SQLException {
-        String query = "SELECT * from user where id = ?";
-        PreparedStatement stmt = connection.prepareStatement(query);
-        stmt.setString(1, id);
-        ResultSet rs = stmt.executeQuery();
-        rs.next();
-        return new User(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getInt(5),rs.getInt(6),rs.getInt(7),rs.getInt(8),rs.getBoolean(9));
-    }
-    public static String getUsernameByID(int deviceID){
+    public static User getUserByID(String id) {
         try {
-            String query = "SELECT name from users where deviceID = ?";
+            String query = "SELECT * from user where id = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setInt(1, deviceID);
+            stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
             rs.next();
-            return rs.getString(1);
+            return new User(rs.getString(1), rs.getString(2), rs.getString(3),
+                    rs.getString(4), rs.getInt(5), rs.getInt(6), rs.getInt(7),
+                    rs.getInt(8), rs.getBoolean(9));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -226,28 +208,89 @@ public class DataBase {
         }
     }
     public static void deleteUser(){}
-    public static boolean rememberMe(String deviceId) {
-        return false;
+    // public static boolean rememberMe(String deviceId) {return false;}
+    public static void setIsPracticeToday(String userID, String dateStr) {
+        try {
+            String query = "UPDATE user SET is_practice_today = ? WHERE id = ? ;";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, dateStr);
+            stmt.setString(2, userID);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
-    public static void setIsPracticeToday() {
+    public static String getIsPracticeToday(String userID) throws SQLException {
+        try {
+            String query = "SELECT is_practice_today from user where name = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, userID);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            return rs.getString(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void setXp(String userID, int xp) {
+        try {
+            String query = "UPDATE user SET xp = ? WHERE id = ? ;";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, String.valueOf(xp));
+            stmt.setString(2, userID);
+            stmt.executeUpdate();
 
+            // update level
+            query = "UPDATE user SET level = ? WHERE id = ? ;";
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, String.valueOf((int)Math.log(xp)));
+            stmt.setString(2, userID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
-    public static Date getIsPracticeToday() {
-        return new Date(100);
-    }
-    public static void setStrikeLevel(int strikeLevel) {
-    }
-    public static void setXp(int xp) {
-    }
-    public static void setLevel(int level) {
-    }
-    public static void setStrike(int strike) {
-    }
-    public static void setProgress(String userID, String WordID, int progress) {
+    public static void setStrike(String userID, int strike) {
+        try {
+            String query = "UPDATE user SET strike = ? WHERE id = ? ;";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, String.valueOf(strike));
+            stmt.setString(2, userID);
+            stmt.executeUpdate();
 
+            // update level
+            query = "UPDATE user SET strike_level = ? WHERE id = ? ;";
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, String.valueOf((int)(Math.log(strike)/Math.log(2))));
+            stmt.setString(2, userID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void setProgress(String userID, String wordID, int progress) {
+        try {
+            String query = "UPDATE word_user SET progress = ? WHERE wordid = ? AND userid = ? ;";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, String.valueOf(progress));
+            stmt.setString(2, wordID);
+            stmt.setString(3, userID);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
     public static int getProgress(String userID, String wordID) {
-        return 0;
+        try {
+            String query = "SELECT progress from word_user WHERE wordid = ? AND userid = ? ";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, wordID);
+            stmt.setString(2, userID);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            return Integer.parseInt(rs.getString(1));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // word
