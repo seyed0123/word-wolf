@@ -12,7 +12,7 @@ public class RestAPiApplication {
         connect();
         createTables();
         SpringApplication.run(RestAPiApplication.class, args);
-//        close();
+        cleanUpLessonTable();
     }
 
 }

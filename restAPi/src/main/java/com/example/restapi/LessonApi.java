@@ -9,15 +9,54 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import static com.example.restapi.jsonWT.verifyToken;
 
 @RestController
 public class LessonApi {
+
+    public static List<Word> selectRandomWords(List<Word> userWords, int numberOfWords) {
+        List<Word> selectedWords = new ArrayList<>();
+        Random random = new Random();
+
+        numberOfWords = Math.min(numberOfWords, userWords.size());
+
+        // Calculate the total weight
+        double totalWeight = 0;
+        for (Word word : userWords) {
+            totalWeight += getWeight(word);
+        }
+
+        // Select words based on their weights
+        for (int i = 0; i < numberOfWords; i++) {
+            double r = random.nextDouble() * totalWeight;
+            double cumulativeWeight = 0;
+            for (Word word : userWords) {
+                cumulativeWeight += getWeight(word);
+                if (r <= cumulativeWeight) {
+                    selectedWords.add(word);
+                    totalWeight -= getWeight(word); // Decrease the total weight by the weight of the selected word
+                    userWords.remove(word); // Remove the selected word to avoid duplicates
+                    break;
+                }
+            }
+        }
+
+        return selectedWords;
+    }
+
+    private static double getWeight(Word word) {
+        // Define your weighting mechanism
+        if (word.getProgress() < 50) {
+            return 10; // High weight for low progress
+        } else {
+            return 1;  // Low weight for high progress
+        }
+    }
 
     @GetMapping("/new_lesson")
     public String newLesson(@RequestHeader(value = "Authorization") String token) throws JsonProcessingException {
@@ -26,51 +65,70 @@ public class LessonApi {
         Date expireDate = jwt.getClaim("expiredate").asDate();
         try {
             List<Word> userWords = DataBase.getWords(userId);
-            List<Word> QWords = new ArrayList<>();
-            int selectWordProgress = 80;
-            List<Question> questions = new ArrayList<>();
-            int questionNumber = 6;
+            Random random = new Random();
+            int questionWithoutShow = random.nextInt(3);
+            int WordNumber = 3 + questionWithoutShow;
+            Collections.shuffle(userWords);
+//            select words
+            List<Word> QWords = selectRandomWords(userWords,WordNumber);
+            List<Word> questionWithoutShowWords = new ArrayList<>(QWords);
 
-            // select word
-            for (int i = 0; i < questionNumber; i++) {
-                for (int j = 0; j < userWords.size(); j++) {
-                    if (userWords.get(j).getProgress() >= selectWordProgress) {
-                        QWords.add(userWords.get(j));
-                        break;
-                    } else if (userWords.size() == j - 1) {
-                        selectWordProgress -= 20;
-                        i = -1;
-                    }
-                }
-                if (selectWordProgress < 0) break;
+            for (int i = 0; i < questionWithoutShow; i++) {
+                int raInd = random.nextInt(QWords.size());
+                QWords.remove(raInd);
             }
 
-            for (int i = 0; i < QWords.size(); i++) {
+            List<Question> questions = new ArrayList<>();
+
+            for (Word questionWithoutShowWord : questionWithoutShowWords) {
                 // select 3 wrong answers
+                HashSet<Integer> chossen = new HashSet<>();
                 ArrayList<String> answers = new ArrayList<>();
-                int correctAnsIndex = (int) ((Math.random() * 10)) % 4;
+                ArrayList<Word> ans_option = DataBase.searchWords("", "", "Any", questionWithoutShowWord.getMeaningLang());
+                ans_option.remove(questionWithoutShowWord);
+                int correctAnsIndex = (random.nextInt(4));
                 for (int j = 0; j < 4; j++) {
                     if (j == correctAnsIndex) {
-                        answers.add(QWords.get(i).getMeaning());
+                        answers.add(questionWithoutShowWord.getMeaning());
                     } else {
-                        int rand = (int) (Math.random() * userWords.size());
-                        if (rand != correctAnsIndex) answers.add(userWords.get(rand).getMeaning());
-                        else j--;
+                        int rand = (random.nextInt(ans_option.size()));
+                        if (rand != correctAnsIndex && !chossen.contains(rand)) {
+                            chossen.add(rand);
+                            answers.add(ans_option.get(rand).getMeaning());
+                        } else j--;
                     }
                 }
-                questions.add(new Question("What is meaning of \"" + QWords.get(i).getActualWord() + "\" ?", answers, correctAnsIndex));
+                questions.add(new Question("What is meaning of \"" + questionWithoutShowWord.getActualWord() + "\" ?", answers, correctAnsIndex,questionWithoutShowWord.getID()));
             }
 
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            String formattedDateTime = now.format(formatter);
             String id = UUID.randomUUID().toString();
             Lesson lesson = new Lesson(id,questions,QWords);
             ObjectMapper objectMapper = new ObjectMapper();
             String data = objectMapper.writeValueAsString(lesson);
 
-            DataBase.addLesson(id,userId,data);
+            DataBase.addLesson(id,formattedDateTime,data,userId);
             return data;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static int isOneDayApart(String date1, LocalDate date2) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        // Parse the string date1 to LocalDate
+        LocalDate localDate1 = LocalDate.parse(date1, formatter);
+
+        // Check if date2 is exactly one day after date1
+        if(localDate1.plusDays(1).equals(date2))
+            return 1;
+        else if(localDate1.equals(date2))
+            return 2;
+        else
+            return 3;
     }
 
     @PostMapping("/res_lesson")
@@ -89,31 +147,41 @@ public class LessonApi {
         ObjectMapper objectMapper = new ObjectMapper();
         Lesson lesson = objectMapper.readValue(DataBase.getLesson(lessonId), Lesson.class);
 
-        List<Word> words = lesson.getWords();
+        List<Question> questions = lesson.getQuestions();
         User user = DataBase.getUserByID(userId);
+
         // update strike level
-        String date1 = user.getPracticeDate();
-        Date date2 = new Date();
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
-        if(Integer.parseInt(fmt.format(date2)) - Integer.parseInt(date1) == 1){
-            int strike = user.getStrike();
-            user.setStrike(strike + 1);
-        } else {
-            user.setStrike(1);
-        }
+
 
         // update words progress & xp & todayPractice
-        int xp = 0;
+        int xp = user.getXp();
         for (int i = 0; i < ansList.size(); i++) {
             if (ansList.get(i)) {
                 xp++;
-                double newP = DataBase.getProgress(userId, words.get(i).getID());
-                if (newP < 100)
-                    DataBase.setProgress(userId, words.get(i).getID(), newP + 10);
+                double newP = DataBase.getProgress(userId, questions.get(i).getQWord());
+                if (newP <= 90)
+                    DataBase.setProgress(userId, questions.get(i).getQWord(), newP + 10);
+            }else{
+                double newP = DataBase.getProgress(userId, questions.get(i).getQWord());
+                if (newP >= 10)
+                    DataBase.setProgress(userId, questions.get(i).getQWord(), newP - 10);
             }
         }
-        if (success) xp += 10;
+        if (success){
+            xp += 10;
+            String date1 = user.getPracticeDate();
+            LocalDate date2 = LocalDate.now();
+            switch (isOneDayApart(date1, date2)) {
+                case 1 -> {
+                    int strike = user.getStrike();
+                    user.setStrike(strike + 1);
+                }
+                case 3 -> user.setStrike(1);
+            }
+            user.setPracticeToday();
+        }
         user.setXp(xp);
-        user.setPracticeToday();
+
+        DataBase.deleteLesson(lessonId);
     }
 }

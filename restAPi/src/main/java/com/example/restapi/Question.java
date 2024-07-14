@@ -6,12 +6,14 @@ public class Question {
     private String question;
     private List<String> answers;
     private int correct;
+    private String QWord;
     public Question(){}
 
-    public Question(String question, List<String> answers, int correct) {
+    public Question(String question, List<String> answers, int correct,String Qword) {
         this.question = question;
         this.answers = answers;
         this.correct = correct;
+        this.QWord = Qword;
     }
 
     public String getQuestion() {
@@ -36,5 +38,13 @@ public class Question {
 
     public void setCorrect(int correct) {
         this.correct = correct;
+    }
+
+    public String getQWord() {
+        return QWord;
+    }
+
+    public void setQWord(String QWord) {
+        this.QWord = QWord;
     }
 }

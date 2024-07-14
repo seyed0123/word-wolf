@@ -54,7 +54,7 @@ public class User {
     public void setXp(int xp) {
         this.xp = xp;
         DataBase.setXp(id, xp);
-        int newLevel = (int)Math.log(xp);
+        int newLevel = (int)Math.log10(xp)+1;
         this.setLevel(newLevel);
     }
     public void setLevel(int level) {
@@ -63,7 +63,7 @@ public class User {
     public void setStrike(int strike) {
         this.strike = strike;
         DataBase.setStrike(id, strike);
-        int newStrikeLevel = (int)(Math.log(strike)/Math.log(2));
+        int newStrikeLevel = (int)(Math.log(strike));
         setStrikeLevel(newStrikeLevel);
     }
     public void setStrikeLevel(int strikeLevel) {

@@ -7,9 +7,15 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DataBase {
     private static Connection connection;
@@ -62,7 +68,8 @@ public class DataBase {
                 + ");";
         String createLessonTable = "create table if not exists lesson("
                 +"id Text primary key,"
-                +"userid Text,"
+                +"userid TEXT,"
+                +"date Text,"
                 +"data Text,"
                 + "FOREIGN KEY (userid) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE"
                 +");";
@@ -217,6 +224,7 @@ public class DataBase {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, dateStr);
             stmt.setString(2, userID);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -244,7 +252,7 @@ public class DataBase {
             // update level
             query = "UPDATE user SET level = ? WHERE id = ? ;";
             stmt = connection.prepareStatement(query);
-            stmt.setInt(1, (int)Math.log(xp));
+            stmt.setInt(1, (int)Math.log10(xp)+1);
             stmt.setString(2, userID);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -424,12 +432,13 @@ public class DataBase {
     }
 
 //    lesson
-    public static void addLesson(String lessonId,String userId , String data) throws SQLException {
-        String query = "insert into lesson (id, userid, data) VALUES (?,?,?);";
+    public static void addLesson(String lessonId,String date , String data,String userid) throws SQLException {
+        String query = "insert into lesson (id, date, data, userid) VALUES (?,?,?,?);";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, lessonId);
-        stmt.setString(2, userId);
+        stmt.setString(2, date);
         stmt.setString(3, data);
+        stmt.setString(4,userid);
         stmt.executeUpdate();
     }
     public static String getLesson(String lessonId) throws SQLException {
@@ -440,6 +449,49 @@ public class DataBase {
         rs.next();
         return rs.getString(1);
     }
+    public static void deleteLesson(String lessonId) throws SQLException {
+        String query = "delete from lesson where id = ?;";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, lessonId);
+        stmt.executeUpdate();
+    }
+
+    public static void cleanUpLessonTable(){
+
+        System.out.println("unit ready to clean up the database");
 
 
+        Runnable task = () -> {
+            System.out.println("Starting to Clean up the DataBase");
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime twoHoursBefore = now.minusHours(2);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+            try {
+                String sql = "DELETE FROM lesson WHERE date < ?";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    preparedStatement.setString(1, twoHoursBefore.format(formatter));
+                    preparedStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            System.out.println("DataBase cleaned");
+        };
+
+
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0).withNano(0);
+        if (now.compareTo(nextRun) >= 0) {
+            nextRun = nextRun.plusDays(1);
+        }
+        System.out.println("NEXT run:"+nextRun.toString());
+
+        long initialDelay = now.until(nextRun, TimeUnit.SECONDS.toChronoUnit());
+        long period = TimeUnit.DAYS.toSeconds(1);
+
+        scheduler.scheduleAtFixedRate(task, initialDelay, period, TimeUnit.SECONDS);
+    }
 }
