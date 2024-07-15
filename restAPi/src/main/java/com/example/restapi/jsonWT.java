@@ -1,4 +1,5 @@
 package com.example.restapi;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -6,6 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 import java.util.Calendar;
 import java.util.Date;
+
 public class jsonWT {
     private static final String SECRET = "sisso";
 
@@ -16,6 +18,7 @@ public class jsonWT {
                 .withClaim("expiredate", expireDate)
                 .sign(algorithm);
     }
+
     public static String createToken(String userId) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         return JWT.create()
@@ -23,6 +26,7 @@ public class jsonWT {
                 .withClaim("expiredate", getExpirationDate())
                 .sign(algorithm);
     }
+
     public static DecodedJWT verifyToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         JWTVerifier verifier = JWT.require(algorithm).build();
