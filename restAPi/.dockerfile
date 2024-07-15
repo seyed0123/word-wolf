@@ -1,5 +1,5 @@
 # Base image with OpenJDK
-FROM openjdk:17-jdk-slim
+FROM maven
 
 # Set working directory
 WORKDIR /app
