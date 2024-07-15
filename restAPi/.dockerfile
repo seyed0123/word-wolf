@@ -5,8 +5,8 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy pom.xml and entire project directory
-COPY pom.xml .
-COPY . .
+COPY restAPi/pom.xml .
+COPY restAPi/. .
 
 # Install dependencies using Maven
 RUN mvn clean install
