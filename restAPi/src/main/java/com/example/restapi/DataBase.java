@@ -458,11 +458,11 @@ public class DataBase {
 
     public static void cleanUpLessonTable(){
 
-        System.out.println("unit ready to clean up the database");
+        System.out.println("Unit ready to clean up the database");
 
 
         Runnable task = () -> {
-            System.out.println("Starting to Clean up the DataBase");
+            System.out.println("Starting to Clean up the DataBase.");
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime twoHoursBefore = now.minusHours(2);
 
@@ -477,7 +477,18 @@ public class DataBase {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            System.out.println("DataBase cleaned");
+            System.out.println("DataBase cleaned.");
+
+            System.out.println("Decreasing all the word progresses.");
+            try {
+                String sql = "update word_user set progress = progress - 2;";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    preparedStatement.executeUpdate();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            System.out.println("All progresses updated :)");
         };
 
 

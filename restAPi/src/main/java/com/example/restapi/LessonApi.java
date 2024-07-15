@@ -161,10 +161,16 @@ public class LessonApi {
                 double newP = DataBase.getProgress(userId, questions.get(i).getQWord());
                 if (newP <= 90)
                     DataBase.setProgress(userId, questions.get(i).getQWord(), newP + 10);
+                else{
+                    DataBase.setProgress(userId, questions.get(i).getQWord(), 100);
+                }
             }else{
                 double newP = DataBase.getProgress(userId, questions.get(i).getQWord());
                 if (newP >= 10)
                     DataBase.setProgress(userId, questions.get(i).getQWord(), newP - 10);
+                else{
+                    DataBase.setProgress(userId, questions.get(i).getQWord(), 0);
+                }
             }
         }
         if (success){
