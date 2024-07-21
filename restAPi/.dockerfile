@@ -1,12 +1,12 @@
 # Base image with OpenJDK
-FROM openjdk:17-jdk-slim
+FROM maven:3.8.6-openjdk-17 AS build
 
 # Set working directory
 WORKDIR /app
 
 # Copy pom.xml and entire project directory
-COPY pom.xml .
-COPY . .
+COPY restAPi/pom.xml .
+COPY restAPi/. .
 
 # Install dependencies using Maven
 RUN mvn clean install
