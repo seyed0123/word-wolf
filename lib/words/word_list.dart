@@ -17,10 +17,12 @@ class word_list extends StatefulWidget {
 class _WordListState extends State<word_list> {
   List<Word> words = [];
   bool isLoading = true;
+  bool empty = true;
 
   Future<void> getWords() async {
     setState(() {
       isLoading = true;
+      empty = true;
     });
 
     try {

@@ -10,7 +10,7 @@ import 'package:word_wolf/words/popular_word.dart';
 import 'package:word_wolf/setting/setting.dart';
 import 'package:word_wolf/words/search_word.dart';
 void main() async  {
-  await dotenv.load(fileName: "env.txt");
+  await dotenv.load(fileName: "assets/env.txt");
   runApp(const MyApp());
 }
 
@@ -52,13 +52,15 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _startIconAnimation();
-    Future.delayed(const Duration(seconds: 10), () {
-      Navigator.pushReplacementNamed(context, '/');
+    Future.delayed(const Duration(seconds: 5), () {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+      });
     });
   }
 
   void _startIconAnimation() {
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       if (mounted) {
         setState(() {
           _showFirstIcon = !_showFirstIcon;

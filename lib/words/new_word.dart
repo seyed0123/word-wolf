@@ -181,138 +181,158 @@ class _NewWordState extends State<new_word> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(50.0),
+        padding: const EdgeInsets.all(30.0),
         child: Center(
-          child: Column(
-            children: [
-              const Text(
-                'Add new word',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            decoration: BoxDecoration(
+              border: const Border.symmetric(
+                vertical: BorderSide(width: 0.5),
+                horizontal: BorderSide(width: 0.5),
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              color: hexToColor('DBE2EF'),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5), // Shadow color
+                  spreadRadius: 5, // Spread radius
+                  blurRadius: 7, // Blur radius
+                  offset: const Offset(0, 2), // Position of shadow
                 ),
-              ),
-              Text(
-                error,
-                style: const TextStyle(
-                  color: Colors.redAccent,
-                  fontSize: 20,
-                ),
-              ),
-              TextField(
-                controller: wordController,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'word',
-                ),
-              ),
-              const SizedBox(height: 25),
-              const Row(
-                children: [
-                  Text('This word belongs to which language?'),
-                ],
-              ),
-              DropdownButton<String>(
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                isExpanded: true,
-                value: dropdownValue,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 100,
-                style: const TextStyle(color: Colors.black),
-                underline: Container(
-                  height: 1,
-                  color: Colors.black45,
-                ),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValue = newValue!;
-                  });
-                },
-                items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 10, // Adjust the radius as needed
-                          backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
-                        ),
-                        const SizedBox(width: 10),
-                        Text(value),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: wordMeaningController,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'word meaning',
-                ),
-              ),
-              const SizedBox(height: 25),
-              const Row(
-                children: [
-                  Text('The word\'s meaning belongs to which language?'),
-                ],
-              ),
-              DropdownButton<String>(
-                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                isExpanded: true,
-                value: dropdownValueMeaning,
-                icon: const Icon(Icons.arrow_downward),
-                iconSize: 24,
-                elevation: 100,
-                style: const TextStyle(color: Colors.black),
-                underline: Container(
-                  height: 1,
-                  color: Colors.black45,
-                ),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    dropdownValueMeaning = newValue!;
-                  });
-                },
-                items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 10, // Adjust the radius as needed
-                          backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
-                        ),
-                        const SizedBox(width: 10),
-                        Text(value),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () {
-                  sendData(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Background color
-                  onPrimary: Colors.white, // Text color
-                  elevation: 5, // Shadow depth
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Rounded corners
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold, // Bold text
-                    fontSize: 16, // Text size
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Text(
+                  'Add new word',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
                   ),
                 ),
-                child: const Text('Add word'),
-              ),
-            ],
+                Text(
+                  error,
+                  style: const TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 20,
+                  ),
+                ),
+                TextField(
+                  controller: wordController,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    labelText: 'word',
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Row(
+                  children: [
+                    Text('This word belongs to which language?'),
+                  ],
+                ),
+                DropdownButton<String>(
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  isExpanded: true,
+                  value: dropdownValue,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 100,
+                  style: const TextStyle(color: Colors.black),
+                  underline: Container(
+                    height: 1,
+                    color: Colors.black45,
+                  ),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValue = newValue!;
+                    });
+                  },
+                  items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 10, // Adjust the radius as needed
+                            backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
+                          ),
+                          const SizedBox(width: 10),
+                          Text(value),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 40),
+                TextField(
+                  controller: wordMeaningController,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    labelText: 'word meaning',
+                  ),
+                ),
+                const SizedBox(height: 25),
+                const Row(
+                  children: [
+                    Text('The word\'s meaning belongs to which language?'),
+                  ],
+                ),
+                DropdownButton<String>(
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  isExpanded: true,
+                  value: dropdownValueMeaning,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 100,
+                  style: const TextStyle(color: Colors.black),
+                  underline: Container(
+                    height: 1,
+                    color: Colors.black45,
+                  ),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropdownValueMeaning = newValue!;
+                    });
+                  },
+                  items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 10, // Adjust the radius as needed
+                            backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
+                          ),
+                          const SizedBox(width: 10),
+                          Text(value),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: () {
+                    sendData(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blue, // Background color
+                    onPrimary: Colors.white, // Text color
+                    elevation: 5, // Shadow depth
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Rounded corners
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, // Bold text
+                      fontSize: 16, // Text size
+                    ),
+                  ),
+                  child: const Text('Add word'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

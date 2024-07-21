@@ -49,9 +49,16 @@ class _Lesson_pageState extends State<Lesson_page> {
     String? token = await getToken();
     final response = await sendRequest(token!, jsonEncode(data), 'res_lesson');
   }
+
+  void navigateToHome(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+    });
+  }
+
   void finishLesson(bool success,BuildContext context0){
       sendLessonResult(success);
-      Navigator.pop(context0);
+      navigateToHome(context0);
       if(success){
         showPopup(context0);
       }else{
