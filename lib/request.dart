@@ -1,9 +1,10 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<String> sendRequest(String token, String json,String endpoint) async {
   final response = await http.post(
-    Uri.parse('http://localhost:8080/$endpoint'),
+    Uri.parse('${dotenv.env['SERVER_URL']}/$endpoint'),
     headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': token,
@@ -22,7 +23,7 @@ Future<String> sendRequest(String token, String json,String endpoint) async {
 
 Future<String> sendGetRequest(String token,String endpoint) async {
   final response = await http.get(
-    Uri.parse('http://localhost:8080/$endpoint'),
+    Uri.parse('${dotenv.env['SERVER_URL']}/$endpoint'),
     headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': token,

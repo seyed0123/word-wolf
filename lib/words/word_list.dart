@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:wave_loading_indicator/wave_progress.dart';
 import 'package:word_wolf/words/word.dart';
@@ -16,10 +17,12 @@ class word_list extends StatefulWidget {
 class _WordListState extends State<word_list> {
   List<Word> words = [];
   bool isLoading = true;
+  bool empty = true;
 
   Future<void> getWords() async {
     setState(() {
       isLoading = true;
+      empty = true;
     });
 
     try {
@@ -139,30 +142,52 @@ class _WordListState extends State<word_list> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Word Wolf'),
+        backgroundColor: hexToColor('749BC2'),
+        title: Center(
+          child: Text(
+            'Word Wolf',
+            style: GoogleFonts.baskervville(
+              textStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w200,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    offset: const Offset(2, 2),
+                    blurRadius: 3,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                ],
+                letterSpacing: 2,
+                wordSpacing: 4,
+              ),
+            ),
+          ),
+        ),
       ),
       body: isLoading
-          ? Center(child: WaveProgress(
-        borderSize: 3.0,
-        size: 180,
-        borderColor: Colors.redAccent,
-        foregroundWaveColor: Colors.greenAccent,
-        backgroundWaveColor: Colors.blueAccent,
-        progress: 50, // [0-100]
-        innerPadding: 10, // padding between border and waves
-      ),
+          ? Center(
+        child: WaveProgress(
+          borderSize: 3.0,
+          size: 180,
+          borderColor: Colors.redAccent,
+          foregroundWaveColor: Colors.greenAccent,
+          backgroundWaveColor: Colors.blueAccent,
+          progress: 50, // [0-100]
+          innerPadding: 10, // padding between border and waves
+        ),
       )
           : SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: words.map((word) {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
               decoration: BoxDecoration(
                 border: const Border.symmetric(
-                    vertical: BorderSide(width: 0.5),
-                    horizontal: BorderSide(width: 0.5)),
+                  vertical: BorderSide(width: 0.5),
+                  horizontal: BorderSide(width: 0.5),
+                ),
                 borderRadius: const BorderRadius.all(Radius.circular(20)),
                 color: hexToColor('DBE2EF'),
                 boxShadow: [
@@ -174,57 +199,83 @@ class _WordListState extends State<word_list> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 25, // Adjust the radius as needed
-                        backgroundImage: AssetImage('assets/flag_of_${word.wordLang}.png'), // Replace with your asset path
-                      ),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.arrow_forward),
-                      const SizedBox(width: 10),
-                      Text(word.actualWord),
-                    ],
-                  ),
-                  LinearPercentIndicator(
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    animation: true,
-                    lineHeight: 20.0,
-                    animationDuration: 2000,
-                    percent: word.progress / 100,
-                    leading: const Text("progress"),
-                    center: Text('${word.progress}%'),
-                    linearStrokeCap: LinearStrokeCap.roundAll,
-                    progressColor: getProgressColor(word.progress / 100),
-                  ),
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 25, // Adjust the radius as needed
-                        backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
-                      ),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.arrow_forward),
-                      const SizedBox(width: 10),
-                      Text(word.meaning),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      deleteWord(word.ID);
-                    },
-                    icon: const Icon(Icons.delete_forever),
-                  ),
-                ],
-              ),
+              child: Wrap(
+                  spacing: 10.0,
+                  runSpacing: 15.0,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // Center children horizontally
+                      children: [
+                        CircleAvatar(
+                          radius: 25, // Adjust the radius as needed
+                          backgroundImage: AssetImage('assets/flag_of_${word.wordLang}.png'), // Replace with your asset path
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(Icons.arrow_forward),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            word.actualWord,
+                            overflow: TextOverflow.clip,
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        LinearPercentIndicator(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          animation: true,
+                          lineHeight: 20.0,
+                          animationDuration: 2000,
+                          percent: word.progress / 100,
+                          leading: const Text("progress:"),
+                          center: Text('${word.progress}%'),
+                          linearStrokeCap: LinearStrokeCap.roundAll,
+                          progressColor: getProgressColor(word.progress / 100),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // Center children horizontally
+                      children: [
+                        CircleAvatar(
+                          radius: 25, // Adjust the radius as needed
+                          backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(Icons.arrow_forward),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            word.meaning,
+                            overflow: TextOverflow.clip,
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            deleteWord(word.ID);
+                          },
+                          icon: const Icon(Icons.delete_forever),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
             );
           }).toList(),
         ),
       ),
     );
   }
+
 }

@@ -49,9 +49,16 @@ class _Lesson_pageState extends State<Lesson_page> {
     String? token = await getToken();
     final response = await sendRequest(token!, jsonEncode(data), 'res_lesson');
   }
+
+  void navigateToHome(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+    });
+  }
+
   void finishLesson(bool success,BuildContext context0){
       sendLessonResult(success);
-      Navigator.pop(context0);
+      navigateToHome(context0);
       if(success){
         showPopup(context0);
       }else{
@@ -161,41 +168,67 @@ class _Lesson_pageState extends State<Lesson_page> {
 
 }
 
-  Container option(Answer e){
+  Container option(Answer e) {
     e.num = numAns;
-    numAns+=1;
+    numAns += 1;
     return Container(
       margin: const EdgeInsets.all(10),
-      width: MediaQuery.of(context).size.width *  0.25,
-      height: MediaQuery.of(context).size.width *  0.1,
-      child: TextButton(onPressed: is_checked ?(){}:(){
-        e.chossen = 1 ;
-        if(chossen == e.num){
-          chossen = -1;
-          e.chossen = 0;
-        }else {
-          if (chossen != -1) {
-            lesson.questions[lesson.numQues].answers[chossen]
-                .chossen = 0;
+      width: MediaQuery.of(context).size.width * 0.45, // Adjusted width for better fit on small screens
+      height: MediaQuery.of(context).size.width * 0.15, // Adjusted height for better fit on small screens
+      child: TextButton(
+        onPressed: is_checked
+            ? () {}
+            : () {
+          e.chossen = 1;
+          if (chossen == e.num) {
             chossen = -1;
+            e.chossen = 0;
+          } else {
+            if (chossen != -1) {
+              lesson.questions[lesson.numQues].answers[chossen].chossen = 0;
+              chossen = -1;
+            }
+            chossen = e.num;
           }
-          chossen = e.num;
-        }
-        numAns=0;
-        setState(() {});
-      },
-          style: TextButton.styleFrom(
-            backgroundColor: e.chossen==1 ? hexToColor('ECB159'): e.chossen==0 ? hexToColor('F9F7F7') : e.chossen==2 ? hexToColor('FF8080'):hexToColor('74E291'),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10), // Rounded corners
+          numAns = 0;
+          setState(() {});
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: e.chossen == 1
+              ? hexToColor('ECB159')
+              : e.chossen == 0
+              ? hexToColor('F9F7F7')
+              : e.chossen == 2
+              ? hexToColor('FF8080')
+              : hexToColor('74E291'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10), // Rounded corners
+          ),
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(5), // Adjusted margin for better fit
+          padding: const EdgeInsets.all(10), // Adjusted padding for better fit
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              e.text,
+              style: GoogleFonts.lato(
+                fontSize: 20, // Adjusted font size for better fit
+                color: Colors.black, // Adjust the color if necessary
+              ), // Adjusted font size for better fit
+              textAlign: TextAlign.center, // Centered text for better readability
             ),
           ),
-          child: Container(
-            margin: const EdgeInsets.all(10),
-            padding: const EdgeInsets.all(20),
-            child: Text(e.text),
-          )),
+        ),
+      ),
     );
+  }
+
+  Color getProgressColor(double progress) {
+    int red = (255 * (1 - progress)).floor();
+    int green = (255 * progress).floor();
+    int blue = (1024 * (-1 * (progress - 1) * progress)).floor();
+    return Color.fromRGBO(red, green, blue, 1);
   }
 
   @override
@@ -215,38 +248,61 @@ class _Lesson_pageState extends State<Lesson_page> {
           ),
         )
         :Scaffold(
-          backgroundColor: hexToColor('F9F7F7'),
+          backgroundColor: hexToColor('E1F0DA'),
           appBar: AppBar(
-          backgroundColor: hexToColor('DBE2EF'),
+          backgroundColor: hexToColor('749BC2'),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-            const Text('Word Wolf'),
-            LinearPercentIndicator(
-              width: MediaQuery.of(context).size.width * 0.5,
-              animation: true,
-              lineHeight: 20.0,
-              animationDuration: 1000,
-              percent: lesson.progress/100,
-              linearStrokeCap: LinearStrokeCap.roundAll,
-              progressColor: hexToColor('112D4E'),
-              ),
-              Row(
-                children: [
-                  Text('${lesson.heart}'),
-                  const SizedBox(
-                    width: 10,
+              Flexible(
+                child: Text(
+                  'Word Wolf',
+                  style: GoogleFonts.baskervville(
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w200,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(2, 2),
+                          blurRadius: 3,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ],
+                    ),
                   ),
-                  const Icon(
+                ),
+              ),
+              Flexible(
+                child: LinearPercentIndicator(
+                  animateFromLastPercent: true,
+                  animation: true,
+                  lineHeight: 20.0,
+                  animationDuration: 1000,
+                  percent: lesson.progress / 100,
+                  linearStrokeCap: LinearStrokeCap.roundAll,
+                  progressColor: getProgressColor(lesson.progress / 100),
+                ),
+              ),
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('${lesson.heart}', overflow: TextOverflow.ellipsis),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const Icon(
                       Icons.favorite,
                       color: Colors.red,
-                  ),
-
-                ],
-              )
-            ]
+                    ),
+                  ],
+                ),
+              ),
+            ],
           )
-        ),
+
+          ),
         body: lesson.words.length > lesson.numWord
             ? Center(
               child: Column(
@@ -259,19 +315,19 @@ class _Lesson_pageState extends State<Lesson_page> {
                     side: CardSide.FRONT, // The side to initially display.
                     front: Container(
                       color: hexToColor('3F72AF'),
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      height: MediaQuery.of(context).size.height * 0.4,
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: MediaQuery.of(context).size.height * 0.5,
                       child: Center(
-                          child:Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          child:Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text(lesson.words[lesson.numWord].actualWord),
-                              const SizedBox(
-                                width: 50,
-                              ),
                               CircleAvatar(
-                                radius:  50, // Adjust the radius as needed
+                                radius:  55, // Adjust the radius as needed
                                 backgroundImage: AssetImage('assets/flag_of_${lesson.words[lesson.numWord].wordLang}.png'), // Replace with your asset path
+                              ),
+                              Text(
+                                  lesson.words[lesson.numWord].actualWord,
+                                  style: GoogleFonts.oswald(fontSize: 25),
                               ),
                             ],
                           )
@@ -282,16 +338,16 @@ class _Lesson_pageState extends State<Lesson_page> {
                       width: MediaQuery.of(context).size.width * 0.4,
                       height: MediaQuery.of(context).size.height * 0.4,
                       child: Center(
-                          child:Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          child:Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text(lesson.words[lesson.numWord].meaning),
-                              const SizedBox(
-                                width: 50,
-                              ),
                               CircleAvatar(
-                                radius:  50, // Adjust the radius as needed
+                                radius:  55, // Adjust the radius as needed
                                 backgroundImage: AssetImage('assets/flag_of_${lesson.words[lesson.numWord].meaningLang}.png'), // Replace with your asset path
+                              ),
+                              Text(
+                                  lesson.words[lesson.numWord].meaning,
+                                style: GoogleFonts.oswald(fontSize: 25),
                               ),
                             ],
                           )
@@ -315,88 +371,104 @@ class _Lesson_pageState extends State<Lesson_page> {
               ),
             )
           : Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 20),
-            margin:const EdgeInsets.symmetric(vertical: 40,horizontal: 30),
-            decoration:BoxDecoration(
-              color: hexToColor('DBE2EF'),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5), // Shadow color
-                  spreadRadius:  5, // Spread radius
-                  blurRadius:  7, // Blur radius
-                  offset: const Offset(0,  2), // Position of shadow
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20), // Adjusted for small screens
+          decoration: BoxDecoration(
+            color: hexToColor('DBE2EF'),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5), // Shadow color
+                spreadRadius: 5, // Spread radius
+                blurRadius: 7, // Blur radius
+                offset: const Offset(0, 2), // Position of shadow
+              ),
+            ],
+          ),
           child: Center(
             child: Column(
               children: [
                 Text(
-                    lesson.questions[lesson.numQues].question,
-                  style: GoogleFonts.radley(),
+                  lesson.questions[lesson.numQues].question,
+                  style: GoogleFonts.radley(
+                    fontSize: 25
+                  ),
+                  textAlign: TextAlign.center, // Center the text for better readability on small screens
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 20,
                 ),
-                Column(
-                  // children:lesson.questions[lesson.numQues].answers.map((e) {return option(e);}
-                  //     ).toList(),
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        option(lesson.questions[lesson.numQues].answers[0]),
-                        option(lesson.questions[lesson.numQues].answers[1]),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        option(lesson.questions[lesson.numQues].answers[2]),
-                        option(lesson.questions[lesson.numQues].answers[3]),
-                      ],
-                    )
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 400) {
+                      // Small screen: use Column for answers
+                      return Column(
+                        children: lesson.questions[lesson.numQues].answers.map((answer) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: option(answer),
+                          );
+                        }).toList(),
+                      );
+                    } else {
+                      // Large screen: use Row for answers
+                      return Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(child: option(lesson.questions[lesson.numQues].answers[0])),
+                              Expanded(child: option(lesson.questions[lesson.numQues].answers[1])),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(child: option(lesson.questions[lesson.numQues].answers[2])),
+                              Expanded(child: option(lesson.questions[lesson.numQues].answers[3])),
+                            ],
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 20,
                 ),
                 FilledButton(
                   onPressed: () {
-
-                    if(quesButtonText=='Next') {
+                    if (quesButtonText == 'Next') {
                       lesson.numQues += 1;
                       lesson.addProgress();
                       quesButtonText = "Submit";
-                      numAns=0;
-                      chossen =-1;
+                      numAns = 0;
+                      chossen = -1;
                       is_checked = false;
-                    }else{
-                      if(chossen==-1){
+                    } else {
+                      if (chossen == -1) {
                         return;
                       }
-                      if(chossen != lesson.questions[lesson.numQues].correct){
-                        lesson.questions[lesson.numQues].answers[chossen].chossen=2;
+                      if (chossen != lesson.questions[lesson.numQues].correct) {
+                        lesson.questions[lesson.numQues].answers[chossen].chossen = 2;
                         lesson.heart--;
                         ans.add(false);
-                        if(lesson.heart==0){
-                          finishLesson(false,context);
+                        if (lesson.heart == 0) {
+                          finishLesson(false, context);
                         }
-                      }else{
+                      } else {
                         ans.add(true);
                       }
                       lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
                       quesButtonText = "Next";
-                      numAns=0;
+                      numAns = 0;
                       is_checked = true;
                     }
 
-                    if(lesson.numQues >= lesson.questions.length){
-                      finishLesson(true,context);
-                    }else{
+                    if (lesson.numQues >= lesson.questions.length) {
+                      finishLesson(true, context);
+                    } else {
                       setState(() {});
                     }
-
                   },
                   style: buttonStyle,
                   child: Text(quesButtonText),
@@ -405,6 +477,7 @@ class _Lesson_pageState extends State<Lesson_page> {
             ),
           ),
         ),
+
     );
   }
 
