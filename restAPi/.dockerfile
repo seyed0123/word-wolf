@@ -1,21 +1,14 @@
-# Base image with OpenJDK
-FROM maven:3.8.6-openjdk-17 AS build
+# Use an official OpenJDK runtime image
+FROM openjdk:17-slim
 
-# Set working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy pom.xml and entire project directory
-COPY restAPi/pom.xml .
-COPY restAPi/. .
+# Copy the pre-built jar file into the container
+COPY restAPi/target/restAPi-0.0.1-SNAPSHOT.jar app.jar
 
-# Install dependencies using Maven
-RUN mvn clean install
-
-# Copy compiled JAR file (adjust based on your project structure)
-COPY target/*.jar app.jar
-
-# Expose port where your SpringBoot application listens (adjust if needed)
+# Expose the port your Spring Boot application will run on
 EXPOSE 8080
 
-# Command to run the application
-CMD ["java", "-jar", "app.jar"]
+# Set the entry point to run the jar
+ENTRYPOINT ["java", "-jar", "app.jar"]

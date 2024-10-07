@@ -10,7 +10,7 @@ import 'package:word_wolf/words/popular_word.dart';
 import 'package:word_wolf/setting/setting.dart';
 import 'package:word_wolf/words/search_word.dart';
 void main() async  {
-  await dotenv.load(fileName: "env.txt");
+  await dotenv.load(fileName: "assets/env.txt");
   runApp(const MyApp());
 }
 

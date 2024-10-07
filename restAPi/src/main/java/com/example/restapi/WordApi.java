@@ -19,18 +19,25 @@ import static com.example.restapi.jsonWT.verifyToken;
 public class WordApi {
 
     @GetMapping("/get_word")
-    public String getWords(@RequestHeader(value = "Authorization") String token) throws SQLException, JsonProcessingException {
+    public String getWords(
+            @RequestHeader(value = "Authorization") String token,
+            @RequestParam(defaultValue = "1") int page,       // Default to first page
+            @RequestParam(defaultValue = "10") int size       // Default size is 10
+    ) throws SQLException, JsonProcessingException {
         DecodedJWT jwt = verifyToken(token);
         String userId = jwt.getClaim("userid").asString();
         Date expireDate = jwt.getClaim("expiredate").asDate();
-        ArrayList<Word> words = DataBase.getWords(userId);
+        ArrayList<Word> words = DataBase.getWords(userId, page, size);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(words);
     }
 
     @GetMapping("/get_popular_word")
-    public String getPopularWords() throws SQLException, JsonProcessingException {
-        ArrayList<Word> words = DataBase.getPopularWords();
+    public String getPopularWords(
+            @RequestParam(defaultValue = "1") int page,       // Default to first page
+            @RequestParam(defaultValue = "10") int size
+    ) throws SQLException, JsonProcessingException {
+        ArrayList<Word> words = DataBase.getPopularWords(page, size);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(words);
     }
@@ -91,7 +98,10 @@ public class WordApi {
     }
 
     @PostMapping("/search")
-    public String search(@RequestHeader(value = "Authorization") String token, @RequestBody String body) throws SQLException, JsonProcessingException {
+    public String search(@RequestHeader(value = "Authorization") String token, @RequestBody String body,
+                 @RequestParam(defaultValue = "1") int page,       // Default to first page
+                 @RequestParam(defaultValue = "10") int size
+    ) throws SQLException, JsonProcessingException {
         DecodedJWT jwt = verifyToken(token);
         String userId = jwt.getClaim("userid").asString();
         Date expireDate = jwt.getClaim("expiredate").asDate();
@@ -102,7 +112,7 @@ public class WordApi {
         String wordLang = obj.getString("wordLang");
         String meaningLang = obj.getString("meaningLang");
 
-        ArrayList<Word> words = DataBase.searchWords(word, wordMeaning, wordLang, meaningLang);
+        ArrayList<Word> words = DataBase.searchWords(word, wordMeaning, wordLang, meaningLang,page,size);
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(words);
     }

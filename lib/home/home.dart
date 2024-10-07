@@ -61,8 +61,7 @@ class _HomeState extends State<Home> {
   }
 
   ButtonStyle buttonStyle = ElevatedButton.styleFrom(
-    primary: Colors.blue, // Background color
-    onPrimary: Colors.white, // Text color
+    foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
     elevation: 5, // Shadow depth
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(30), // Rounded corners
@@ -124,7 +123,7 @@ class _HomeState extends State<Home> {
               radius: 35.0,
               lineWidth: 5.0,
               animation: true,
-              percent: user!.xp / pow(2, user!.level as num),
+              percent: user!.xp / pow(10, user!.level as num),
               header: Text(
                 'Level',
                 style: GoogleFonts.gabriela(color: Colors.white),
@@ -214,7 +213,7 @@ class _HomeState extends State<Home> {
                       padding: const EdgeInsets.all(10.0), // Padding between the border and the avatar
                       child: CircleAvatar(
                         radius: 100, // Adjust the radius as needed
-                        backgroundImage: AssetImage('${user!.strikeLevelName}.png'), // Replace with your asset path
+                        backgroundImage: AssetImage('assets/${user!.strikeLevelName}.png'),
                       ),
                     ),
                   ),

@@ -236,8 +236,7 @@ class _Sign_upState extends State<Sign_up> {
                   sendData();
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Background color
-                  onPrimary: Colors.white, // Text color
+                  foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
                   elevation: 5, // Shadow depth
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30), // Rounded corners
