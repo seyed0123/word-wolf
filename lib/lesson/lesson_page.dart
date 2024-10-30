@@ -165,8 +165,8 @@ class _Lesson_pageState extends State<Lesson_page> {
     numAns += 1;
     return Container(
       margin: const EdgeInsets.all(10),
-      width: MediaQuery.of(context).size.width * 0.45, // Adjusted width for better fit on small screens
-      height: MediaQuery.of(context).size.width * 0.15, // Adjusted height for better fit on small screens
+      width: MediaQuery.of(context).size.width < 600? MediaQuery.of(context).size.width * 0.7 : MediaQuery.of(context).size.width * 0.45,
+      // height: MediaQuery.of(context).size.width < 600 ? MediaQuery.of(context).size.width * 0.25:MediaQuery.of(context).size.width * 0.15,
       child: TextButton(
         onPressed: is_checked
             ? () {}
@@ -194,21 +194,21 @@ class _Lesson_pageState extends State<Lesson_page> {
               ? hexToColor('FF8080')
               : hexToColor('74E291'),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10), // Rounded corners
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: Container(
-          margin: const EdgeInsets.all(5), // Adjusted margin for better fit
-          padding: const EdgeInsets.all(10), // Adjusted padding for better fit
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
+          margin: const EdgeInsets.all(5),
+          padding: const EdgeInsets.all(10),
+          child: Flexible(
+            // fit: BoxFit.fitHeight,
             child: Text(
               e.text,
               style: GoogleFonts.lato(
-                fontSize: 20, // Adjusted font size for better fit
-                color: Colors.black, // Adjust the color if necessary
-              ), // Adjusted font size for better fit
-              textAlign: TextAlign.center, // Centered text for better readability
+                fontSize: 20,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -337,9 +337,12 @@ class _Lesson_pageState extends State<Lesson_page> {
                                 radius:  55, // Adjust the radius as needed
                                 backgroundImage: AssetImage('assets/flag_of_${lesson.words[lesson.numWord].meaningLang}.png'), // Replace with your asset path
                               ),
-                              Text(
+                              const Text("Meaning"),
+                              Flexible(
+                                child: Text(
                                   lesson.words[lesson.numWord].meaning,
-                                style: GoogleFonts.oswald(fontSize: 25),
+                                  style: GoogleFonts.oswald(fontSize: 25),
+                                ),
                               ),
                             ],
                           )
@@ -362,113 +365,115 @@ class _Lesson_pageState extends State<Lesson_page> {
                 ],
               ),
             )
-          : Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-          margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20), // Adjusted for small screens
-          decoration: BoxDecoration(
-            color: hexToColor('DBE2EF'),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5), // Shadow color
-                spreadRadius: 5, // Spread radius
-                blurRadius: 7, // Blur radius
-                offset: const Offset(0, 2), // Position of shadow
-              ),
-            ],
-          ),
-          child: Center(
-            child: Column(
-              children: [
-                Text(
-                  lesson.questions[lesson.numQues].question,
-                  style: GoogleFonts.radley(
-                    fontSize: 25
-                  ),
-                  textAlign: TextAlign.center, // Center the text for better readability on small screens
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth < 400) {
-                      // Small screen: use Column for answers
-                      return Column(
-                        children: lesson.questions[lesson.numQues].answers.map((answer) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: option(answer),
-                          );
-                        }).toList(),
-                      );
-                    } else {
-                      // Large screen: use Row for answers
-                      return Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(child: option(lesson.questions[lesson.numQues].answers[0])),
-                              Expanded(child: option(lesson.questions[lesson.numQues].answers[1])),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(child: option(lesson.questions[lesson.numQues].answers[2])),
-                              Expanded(child: option(lesson.questions[lesson.numQues].answers[3])),
-                            ],
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                FilledButton(
-                  onPressed: () {
-                    if (quesButtonText == 'Next') {
-                      lesson.numQues += 1;
-                      lesson.addProgress();
-                      quesButtonText = "Submit";
-                      numAns = 0;
-                      chossen = -1;
-                      is_checked = false;
-                    } else {
-                      if (chossen == -1) {
-                        return;
-                      }
-                      if (chossen != lesson.questions[lesson.numQues].correct) {
-                        lesson.questions[lesson.numQues].answers[chossen].chossen = 2;
-                        lesson.heart--;
-                        ans.add(false);
-                        if (lesson.heart == 0) {
-                          finishLesson(false, context);
-                        }
-                      } else {
-                        ans.add(true);
-                      }
-                      lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
-                      quesButtonText = "Next";
-                      numAns = 0;
-                      is_checked = true;
-                    }
-
-                    if (lesson.numQues >= lesson.questions.length) {
-                      finishLesson(true, context);
-                    } else {
-                      setState(() {});
-                    }
-                  },
-                  style: buttonStyle,
-                  child: Text(quesButtonText),
+          : SingleChildScrollView(
+            child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20), // Adjusted for small screens
+            decoration: BoxDecoration(
+              color: hexToColor('DBE2EF'),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5), // Shadow color
+                  spreadRadius: 5, // Spread radius
+                  blurRadius: 7, // Blur radius
+                  offset: const Offset(0, 2), // Position of shadow
                 ),
               ],
             ),
-          ),
+            child: Center(
+              child: Column(
+                children: [
+                  Text(
+                    lesson.questions[lesson.numQues].question,
+                    style: GoogleFonts.radley(
+                      fontSize: 25
+                    ),
+                    textAlign: TextAlign.center, // Center the text for better readability on small screens
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth < 400) {
+                        // Small screen: use Column for answers
+                        return Column(
+                          children: lesson.questions[lesson.numQues].answers.map((answer) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: option(answer),
+                            );
+                          }).toList(),
+                        );
+                      } else {
+                        // Large screen: use Row for answers
+                        return Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(child: option(lesson.questions[lesson.numQues].answers[0])),
+                                Expanded(child: option(lesson.questions[lesson.numQues].answers[1])),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(child: option(lesson.questions[lesson.numQues].answers[2])),
+                                Expanded(child: option(lesson.questions[lesson.numQues].answers[3])),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  FilledButton(
+                    onPressed: () {
+                      if (quesButtonText == 'Next') {
+                        lesson.numQues += 1;
+                        lesson.addProgress();
+                        quesButtonText = "Submit";
+                        numAns = 0;
+                        chossen = -1;
+                        is_checked = false;
+                      } else {
+                        if (chossen == -1) {
+                          return;
+                        }
+                        if (chossen != lesson.questions[lesson.numQues].correct) {
+                          lesson.questions[lesson.numQues].answers[chossen].chossen = 2;
+                          lesson.heart--;
+                          ans.add(false);
+                          if (lesson.heart == 0) {
+                            finishLesson(false, context);
+                          }
+                        } else {
+                          ans.add(true);
+                        }
+                        lesson.questions[lesson.numQues].answers[lesson.questions[lesson.numQues].correct].chossen = 3;
+                        quesButtonText = "Next";
+                        numAns = 0;
+                        is_checked = true;
+                      }
+
+                      if (lesson.numQues >= lesson.questions.length) {
+                        finishLesson(true, context);
+                      } else {
+                        setState(() {});
+                      }
+                    },
+                    style: buttonStyle,
+                    child: Text(quesButtonText),
+                  ),
+                ],
+              ),
+            ),
         ),
+          ),
 
     );
   }

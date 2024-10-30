@@ -12,6 +12,7 @@ import 'package:word_wolf/words/search_word.dart';
 void main() async  {
   await dotenv.load(fileName: "assets/env.txt");
   runApp(const MyApp());
+  // SERVER_URL=https://adorable-johnna-seyed0123-a85ae44e.koyeb.app
 }
 
 class MyApp extends StatelessWidget {
@@ -52,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _startIconAnimation();
-    Future.delayed(const Duration(seconds: 10), () {
+    Future.delayed(const Duration(seconds: 5), () {
       Navigator.pushReplacementNamed(context, '/');
     });
   }
@@ -84,8 +85,8 @@ class _SplashScreenState extends State<SplashScreen> {
             AnimatedSwitcher(
               duration: const Duration(seconds: 1),
               child: _showFirstIcon
-                  ? Image.asset('assets/icon1.jpg', key: ValueKey(1),height: MediaQuery.of(context).size.height)
-                  : Image.asset('assets/icon2.jpg', key: ValueKey(2),height: MediaQuery.of(context).size.height),
+                  ? Image.asset('assets/icon1.jpg', key: const ValueKey(1),height: MediaQuery.of(context).size.height)
+                  : Image.asset('assets/icon2.jpg', key: const ValueKey(2),height: MediaQuery.of(context).size.height),
             ),
           ],
         ),

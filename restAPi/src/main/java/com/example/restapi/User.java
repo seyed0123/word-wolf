@@ -3,7 +3,10 @@ package com.example.restapi;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class User {
     private String id;
@@ -17,7 +20,7 @@ public class User {
     private int strike;
     private boolean isPracticeToday;
     private String PracticeToday;
-
+    private List<String> levels = Arrays.asList("Clown", "Noob", "Novice","Average","Sigma","Chad","Absolute Chad","Giga Chad","Absolute Giga Chad");
     public User (String username) {
         this.username = username;
     }
@@ -76,22 +79,12 @@ public class User {
         this.PracticeToday = dateStr;
         DataBase.setIsPracticeToday(this.id, dateStr);
     }
+
     public String settingStrikeLevelName(){
-        if (strike > 8) {
-            return "Absolute Giga Chad";
+        if (strike >= levels.size()) {
+            return levels.get(levels.size()-1);
         }
-        return switch (strikeLevel) {
-            case 0 -> "Clown";
-            case 1 -> "Noob";
-            case 2 -> "Novice";
-            case 3 -> "Average";
-            case 4 -> "Sigma";
-            case 5 -> "Chad";
-            case 6 -> "Absolute_chad";
-            case 7 -> "Giga_chad";
-            case 8 -> "Absolute_Giga_chad";
-            default -> "";
-        };
+        return levels.get(strike);
     }
 
     // getters
