@@ -64,10 +64,10 @@ public class LessonApi {
         String userId = jwt.getClaim("userid").asString();
         Date expireDate = jwt.getClaim("expiredate").asDate();
         try {
-            List<Word> userWords = DataBase.getWords(userId);
+            List<Word> userWords = DataBase.getWords(userId,1,100000);
             Random random = new Random();
             int questionWithoutShow = random.nextInt(3);
-            int WordNumber = 3 + questionWithoutShow;
+            int WordNumber = 4 + questionWithoutShow;
             Collections.shuffle(userWords);
 //            select words
             List<Word> QWords = selectRandomWords(userWords,WordNumber);
@@ -84,8 +84,11 @@ public class LessonApi {
                 // select 3 wrong answers
                 HashSet<Integer> chossen = new HashSet<>();
                 ArrayList<String> answers = new ArrayList<>();
-                ArrayList<Word> ans_option = DataBase.searchWords("", "", "Any", questionWithoutShowWord.getMeaningLang());
-                ans_option.remove(questionWithoutShowWord);
+                ArrayList<Word> ans_option = DataBase.searchWords("", "", "Any", questionWithoutShowWord.getMeaningLang(),1,1000000);
+                ans_option.removeIf(word -> word.getMeaning().equals(questionWithoutShowWord.getMeaning()));
+                if (ans_option.size()<=3){
+                    continue;
+                }
                 int correctAnsIndex = (random.nextInt(4));
                 for (int j = 0; j < 4; j++) {
                     if (j == correctAnsIndex) {

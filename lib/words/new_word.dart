@@ -181,28 +181,10 @@ class _NewWordState extends State<new_word> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(50.0),
         child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-            decoration: BoxDecoration(
-              border: const Border.symmetric(
-                vertical: BorderSide(width: 0.5),
-                horizontal: BorderSide(width: 0.5),
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
-              color: hexToColor('DBE2EF'),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5), // Shadow color
-                  spreadRadius: 5, // Spread radius
-                  blurRadius: 7, // Blur radius
-                  offset: const Offset(0, 2), // Position of shadow
-                ),
-              ],
-            ),
+          child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Text(
                   'Add new word',
@@ -273,10 +255,12 @@ class _NewWordState extends State<new_word> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                const Row(
-                  children: [
-                    Text('The word\'s meaning belongs to which language?'),
-                  ],
+                const SingleChildScrollView(
+                  child: Row(
+                    children: [
+                      Text('Word\'s meaning belongs to which language?'),
+                    ],
+                  ),
                 ),
                 DropdownButton<String>(
                   borderRadius: const BorderRadius.all(Radius.circular(5)),
@@ -317,8 +301,7 @@ class _NewWordState extends State<new_word> {
                     sendData(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // Background color
-                    onPrimary: Colors.white, // Text color
+                    foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
                     elevation: 5, // Shadow depth
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30), // Rounded corners

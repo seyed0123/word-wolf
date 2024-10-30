@@ -176,34 +176,16 @@ class _loginState extends State<login> {
             const SizedBox(
               height: 100,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    sendData();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // Background color
-                    onPrimary: Colors.white, // Text color
-                    elevation: 5, // Shadow depth
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30), // Rounded corners
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, // Bold text
-                      fontSize: 16, // Text size
-                    ),
-                  ),
-                  child: const Text('Login'),
-                ),
-                const SizedBox(width:  20),
-                ElevatedButton(
-                    onPressed: (){Navigator.pushNamed(context, '/sign_up');},
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      sendData();
+                    },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.blue, // Background color
-                      onPrimary: Colors.white, // Text color
+                      foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
                       elevation: 5, // Shadow depth
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30), // Rounded corners
@@ -214,9 +196,27 @@ class _loginState extends State<login> {
                         fontSize: 16, // Text size
                       ),
                     ),
-                    child: const Text('sign_up')
-                )
-              ],
+                    child: const Text('Login'),
+                  ),
+                  const SizedBox(width:  20),
+                  ElevatedButton(
+                      onPressed: (){Navigator.pushNamed(context, '/sign_up');},
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
+                        elevation: 5, // Shadow depth
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30), // Rounded corners
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold, // Bold text
+                          fontSize: 16, // Text size
+                        ),
+                      ),
+                      child: const Text('sign_up')
+                  )
+                ],
+              ),
             )
           ],
         ),

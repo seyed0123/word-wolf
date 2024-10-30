@@ -15,6 +15,9 @@ class popularWord extends StatefulWidget {
 class _PopularWordState extends State<popularWord> {
   List<Word> words = [];
   bool isLoading = true;
+  int currentPage = 1;
+  final int pageSize = 10; // Adjust this value if needed
+  int endPage = -1;
 
   Future<void> getWords() async {
     setState(() {
@@ -23,12 +26,17 @@ class _PopularWordState extends State<popularWord> {
 
     try {
       String? token = await getToken();
-      final String response = await sendGetRequest(token!, 'get_popular_word');
+      final String response = await sendGetRequest(token!, 'get_popular_word?page=$currentPage&size=$pageSize');
       final parsed = jsonDecode(response).cast<Map<String, dynamic>>();
       setState(() {
         words = parsed.map<Word>((json) => Word.fromJson(json)).toList();
         isLoading = false;
       });
+      if(words.isEmpty && currentPage > 1){
+        currentPage--;
+        endPage = currentPage;
+        getWords();
+      }
     } catch (e) {
       // Handle error
       setState(() {
@@ -174,85 +182,119 @@ class _PopularWordState extends State<popularWord> {
              )
           : SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: words.map((word) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-              margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              decoration: BoxDecoration(
-                border: const Border.symmetric(
-                    vertical: BorderSide(width: 0.5),
-                    horizontal: BorderSide(width: 0.5)),
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                color: hexToColor('DBE2EF'),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5), // Shadow color
-                    spreadRadius: 5, // Spread radius
-                    blurRadius: 7, // Blur radius
-                    offset: const Offset(0, 2), // Position of shadow
-                  ),
-                ],
-              ),
-              child: Wrap(
-                spacing: 10.0,
-                runSpacing: 15.0,
-                alignment: WrapAlignment.center,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 25, // Adjust the radius as needed
-                        backgroundImage: AssetImage('assets/flag_of_${word.wordLang}.png'), // Replace with your asset path
-                      ),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.arrow_forward),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          word.actualWord,
-                          overflow: TextOverflow.clip,
-                          softWrap: true,
-                        ),
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: words.map((word) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  decoration: BoxDecoration(
+                    border: const Border.symmetric(
+                        vertical: BorderSide(width: 0.5),
+                        horizontal: BorderSide(width: 0.5)),
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    color: hexToColor('DBE2EF'),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5), // Shadow color
+                        spreadRadius: 5, // Spread radius
+                        blurRadius: 7, // Blur radius
+                        offset: const Offset(0, 2), // Position of shadow
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Wrap(
+                    spacing: 10.0,
+                    runSpacing: 15.0,
+                    alignment: WrapAlignment.center,
                     children: [
-                      CircleAvatar(
-                        radius: 25, // Adjust the radius as needed
-                        backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 25, // Adjust the radius as needed
+                            backgroundImage: AssetImage('assets/flag_of_${word.wordLang}.png'), // Replace with your asset path
+                          ),
+                          const SizedBox(width: 10),
+                          const Icon(Icons.arrow_forward),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              word.actualWord,
+                              overflow: TextOverflow.clip,
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.arrow_forward),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          word.meaning,
-                          overflow: TextOverflow.clip,
-                          softWrap: true,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 25, // Adjust the radius as needed
+                            backgroundImage: AssetImage('assets/flag_of_${word.meaningLang}.png'), // Replace with your asset path
+                          ),
+                          const SizedBox(width: 10),
+                          const Icon(Icons.arrow_forward),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              word.meaning,
+                              overflow: TextOverflow.clip,
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
+                            },
+                            icon: const Icon(Icons.add_box),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          addWord(word.actualWord,word.meaning,word.wordLang,word.meaningLang);
-                        },
-                        icon: const Icon(Icons.add_box),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+                );
+              }).toList(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: currentPage > 1
+                      ? () {
+                    setState(() {
+                      currentPage--;
+                      getWords();
+                    });
+                  }
+                      : null, // Disable button if on the first page
+                  child: const Text('Prev'),
+                ),
+                const SizedBox(width: 20),
+                Text('$currentPage'),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: currentPage != endPage
+                      ? () {
+                    setState(() {
+                      currentPage++;
+                      getWords();
+                    });
+                  }
+                      : null, // Disable button if on the last page
+                  child: const Text('Next'),
+                ),
+              ],
+            )
+          ],
         ),
       ),
     );
