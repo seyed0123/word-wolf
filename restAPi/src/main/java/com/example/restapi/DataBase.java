@@ -18,7 +18,7 @@ public class DataBase {
     public static void connect() {
         try {
             Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection("jdbc:postgresql://postgres_db/worldWolf", "worldWolfAdm", "r4lNXKcL3GMh");
+            connection = DriverManager.getConnection("jdbc:postgresql://185.79.97.36:8880/t", "admin", "1793p");
             System.out.println("Database connected");
         } catch (SQLException e) {
             System.err.println(e.getMessage());
