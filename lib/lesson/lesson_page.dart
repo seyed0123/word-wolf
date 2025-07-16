@@ -52,9 +52,7 @@ class _Lesson_pageState extends State<Lesson_page> {
   void finishLesson(bool success,BuildContext context0){
       sendLessonResult(success);
       Navigator.pop(context0);
-      if(success){
-        showPopup(context0);
-      }else{
+      if(!success){
         lossPopup(context0);
       }
   }
@@ -156,9 +154,6 @@ class _Lesson_pageState extends State<Lesson_page> {
     );
   }
 
-  void losePopUp(){
-
-}
 
   Container option(Answer e) {
     e.num = numAns;
@@ -200,16 +195,13 @@ class _Lesson_pageState extends State<Lesson_page> {
         child: Container(
           margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.all(10),
-          child: Flexible(
-            // fit: BoxFit.fitHeight,
-            child: Text(
-              e.text,
-              style: GoogleFonts.lato(
-                fontSize: 20,
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
+          child: Text(
+            e.text,
+            style: GoogleFonts.lato(
+              fontSize: 20,
+              color: Colors.black,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
@@ -234,8 +226,8 @@ class _Lesson_pageState extends State<Lesson_page> {
               borderColor: Colors.redAccent,
               foregroundWaveColor: Colors.greenAccent,
               backgroundWaveColor: Colors.blueAccent,
-              progress: 30, // [0-100]
-              innerPadding: 10, // padding between border and waves
+              progress: 30,
+              innerPadding: 10,
             ),
           ),
         )
@@ -303,7 +295,7 @@ class _Lesson_pageState extends State<Lesson_page> {
                 children: [
                   FlipCard(
                     fill: Fill.fillBack, // Fill the back side of the card to make in the same size as the front.
-                    direction: lesson.numWord % 2==0 ?FlipDirection.HORIZONTAL:FlipDirection.VERTICAL, // default
+                    // direction: lesson.numWord % 2==0 ?FlipDirection.HORIZONTAL:FlipDirection.VERTICAL, // default
                     side: CardSide.FRONT, // The side to initially display.
                     front: Container(
                       color: hexToColor('3F72AF'),
