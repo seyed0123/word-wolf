@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.example.restapi.DataBase.getWordCount;
 import static com.example.restapi.jsonWT.verifyToken;
 
 @RestController
@@ -64,7 +65,7 @@ public class LessonApi {
         String userId = jwt.getClaim("userid").asString();
         Date expireDate = jwt.getClaim("expiredate").asDate();
         try {
-            List<Word> userWords = DataBase.getWords(userId,1,100000);
+            List<Word> userWords = DataBase.getWords(userId,1,500);
             Random random = new Random();
             int questionWithoutShow = random.nextInt(3);
             int WordNumber = 4 + questionWithoutShow;
@@ -79,17 +80,33 @@ public class LessonApi {
             }
 
             List<Question> questions = new ArrayList<>();
+            Hashtable<String,ArrayList<Word>> word_list_cache = new Hashtable<>();
 
             for (Word questionWithoutShowWord : questionWithoutShowWords) {
                 // select 3 wrong answers
                 HashSet<Integer> chossen = new HashSet<>();
                 ArrayList<String> answers = new ArrayList<>();
-                ArrayList<Word> ans_option = DataBase.searchWords("", "", "Any", questionWithoutShowWord.getMeaningLang(),1,1000000);
-                ans_option.removeIf(word -> word.getMeaning().equals(questionWithoutShowWord.getMeaning()));
+                ArrayList<Word> ans_option = null;
+                if (!word_list_cache.containsKey(questionWithoutShowWord.getMeaningLang()))
+                {
+                    int totalWords = getWordCount("", "", "Any", questionWithoutShowWord.getMeaningLang());
+                    int size = 200;
+                    int totalPages = (int) Math.ceil((double) totalWords / size);
+                    int randomPage = new Random().nextInt(totalPages) + 1;
+
+                    ans_option = DataBase.searchWords("", "", "Any", questionWithoutShowWord.getMeaningLang(), randomPage, size);
+                    word_list_cache.put(questionWithoutShowWord.getMeaningLang(),ans_option);
+                }else{
+                    ans_option = word_list_cache.get(questionWithoutShowWord.getMeaningLang());
+                }
+                ans_option.removeIf(word ->
+                        word.getMeaning().trim().equals(questionWithoutShowWord.getMeaning().trim())
+                );
+
                 if (ans_option.size()<=3){
                     continue;
                 }
-                int correctAnsIndex = (random.nextInt(4));
+                int correctAnsIndex = random.nextInt(4);
                 for (int j = 0; j < 4; j++) {
                     if (j == correctAnsIndex) {
                         answers.add(questionWithoutShowWord.getMeaning());

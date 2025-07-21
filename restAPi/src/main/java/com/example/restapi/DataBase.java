@@ -1,5 +1,6 @@
 package com.example.restapi;
 
+import javax.naming.ConfigurationException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
@@ -7,33 +8,39 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class DataBase {
-    private static Connection connection;
 
-    public static void connect() {
+    public static Connection connect() {
         try {
             Class.forName("org.postgresql.Driver");
-            connection = DriverManager.getConnection("jdbc:postgresql://185.79.97.36:8880/t", "admin", "1793p");
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://185.79.97.36:8880/t", "admin", "1793p");
             System.out.println("Database connected");
+            return connection;
         } catch (SQLException e) {
             System.err.println(e.getMessage());
+            throw new RuntimeException("Database connection error", e);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void close() {
+    public static void close(Connection connection) {
+        if (connection == null) {
+            return;
+        }
+
         try {
-            Statement statement = connection.createStatement();
-            statement.close();
-            connection.close();
+            if (!connection.isClosed()) {
+                connection.close();
+            }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to close database connection", e);
+        } finally {
+            connection = null;
         }
     }
 
@@ -75,9 +82,9 @@ public class DataBase {
                 + "data TEXT,"
                 + "FOREIGN KEY (userid) REFERENCES person(id) ON DELETE CASCADE ON UPDATE CASCADE"
                 + ");";
-
+        Connection connection=null;
         try {
-            connect();
+            connection = connect();
             Statement stmt = connection.createStatement();
             // Create new tables
             stmt.execute(createUserTable);
@@ -88,14 +95,15 @@ public class DataBase {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }finally {
-            close();
+            close(connection);
         }
     }
 
     // user
     public static boolean usernameExist(String username) {
+        Connection connection=null;
         try {
-            connect();
+            connection = connect();
             String query = "SELECT EXISTS (SELECT 1 FROM person WHERE username = ?)";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, username);
@@ -105,7 +113,7 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
@@ -124,8 +132,9 @@ public class DataBase {
     }
 
     public static boolean checkPassword(String username, String password) {
+        Connection connection=null;
         try {
-            connect();
+            connection= connect();
             String query = "select password from person where username = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, username);
@@ -135,13 +144,14 @@ public class DataBase {
         } catch (SQLException e) {
             return false;
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void changePassword(String id, String newPassword) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE person SET password = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, hashPassword(newPassword));
@@ -151,13 +161,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void changeUsername(String id, String newUsername) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE person SET username = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, newUsername);
@@ -166,13 +177,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void changeEmail(String id, String newEmail) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE person SET email = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, newEmail);
@@ -181,13 +193,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void addUser(String id, String username, String email, String password) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "insert into person (id, username, password, email,strike_level, xp,level,strike,is_practice_today) values (?, ?, ?, ?,?, ?, ?, ?,?)";
             LocalDate yesterday = LocalDate.now().minusDays(1);
             String formattedDate = yesterday.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -206,13 +219,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static User getUserByUsername(String username) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "SELECT * from person where username = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, username);
@@ -224,13 +238,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static User getUserByID(String id) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "SELECT * from person where id = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, id);
@@ -242,13 +257,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static String getEmail(String username) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "SELECT email from person where name = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, username);
@@ -258,17 +274,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
-    public static void deleteUser() {
-    }
-
-    // public static boolean rememberMe(String deviceId) {return false;}
     public static void setIsPracticeToday(String userID, String dateStr) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE person SET is_practice_today = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, dateStr);
@@ -277,13 +290,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static String getIsPracticeToday(String userID) throws SQLException {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "SELECT is_practice_today from person where name = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, userID);
@@ -293,13 +307,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void setXp(String userID, int xp) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE person SET xp = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, xp);
@@ -315,13 +330,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void setStrike(String userID, int strike) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE person SET strike = ? WHERE id = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, strike);
@@ -337,13 +353,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static void setProgress(String userID, String wordID, double progress) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "UPDATE word_user SET progress = ? WHERE wordid = ? AND userid = ? ;";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setDouble(1, progress);
@@ -353,13 +370,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     public static double getProgress(String userID, String wordID) {
+        Connection connection=null;
         try {
-            connect();
+            connection=connect();
             String query = "SELECT progress from word_user WHERE wordid = ? AND userid = ? ";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, wordID);
@@ -370,13 +388,14 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally {
-            close();
+            close(connection);
         }
     }
 
     // word
     public static void addWord(String ID, String actualWord, String meaning, String wordLang, String meaningLang) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "insert into word (id, actword, meaning, wordlang, meanLang) values (?,?,?,?,?)";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, ID);
@@ -385,126 +404,163 @@ public class DataBase {
         stmt.setString(4, wordLang);
         stmt.setString(5, meaningLang);
         stmt.executeUpdate();
-        close();
+        close(connection);
     }
 
     public static void delWord(String wordId) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "delete from word where id = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, wordId);
         stmt.executeUpdate();
-        close();
+        close(connection);
     }
 
     public static void delWordUser(String wordId, String userId) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "delete from word_user where userid= ? and wordid = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, userId);
         stmt.setString(2, wordId);
         stmt.executeUpdate();
-        close();
+        close(connection);
     }
 
     public static void addWordUser(String wordID, String userId) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "insert into word_user (wordid, userid, progress) VALUES (?,?,?)";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, wordID);
         stmt.setString(2, userId);
         stmt.setInt(3, 0);
         stmt.executeUpdate();
-        close();
+        close(connection);
     }
 
-    public static ArrayList<Word> getPopularWords(int page,int size) throws SQLException {
-        connect();
+    public static ArrayList<Word> getPopularWords(int page, int size) throws SQLException {
+        Connection connection=null;
+        connection=connect();
         int offset = (page - 1) * size;
-        String query = "SELECT \n" +
-                "    *, \n" +
-                "    COUNT(*) AS frequency, \n" +
-                "    AVG(progress) AS avg_progress\n" +
-                "FROM \n" +
-                "    word_user\n" +
-                "GROUP BY \n" +
-                "    wordid, \n" +
-                "    userid\n" +
-                "ORDER BY \n" +
-                "    frequency DESC LIMIT ? OFFSET ?;\n ";
+
+        String query = "SELECT w.*, " +
+                "COUNT(wu.wordid) AS frequency, " +
+                "AVG(wu.progress) AS avg_progress " +
+                "FROM word w " +
+                "JOIN word_user wu ON w.id = wu.wordid " +
+                "GROUP BY w.id " +  // Group by word ID only
+                "ORDER BY frequency DESC " +
+                "LIMIT ? OFFSET ?";
+
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setInt(1, size);
         stmt.setInt(2, offset);
         ResultSet rs = stmt.executeQuery();
+
         ArrayList<Word> ret = new ArrayList<>();
-        HashSet<String> seen = new HashSet<>();
         while (rs.next()) {
-            String wordId = rs.getString("wordid");
-            if (seen.contains(wordId)) {
-                continue;
-            }
-            double progress = rs.getDouble("progress");
-            String wordQuery = "select * from word where id = ?";
-            PreparedStatement wordStmt = connection.prepareStatement(wordQuery);
-            wordStmt.setString(1, wordId);
-            ResultSet wordRs = wordStmt.executeQuery();
-            wordRs.next();
-            ret.add(new Word(wordRs.getString(1), wordRs.getString(2), wordRs.getString(3), wordRs.getString(4), wordRs.getString(5), progress));
-            seen.add(wordId);
+            ret.add(new Word(
+                    rs.getString("id"),
+                    rs.getString("actword"),
+                    rs.getString("meaning"),
+                    rs.getString("wordlang"),
+                    rs.getString("meanlang"),
+                    rs.getDouble("avg_progress")
+            ));
         }
-        close();
+
+        close(connection);
         return ret;
     }
 
     public static ArrayList<Word> getWords(String userId, int page, int size) throws SQLException {
-        int offset = (page - 1) * size; // Calculate offset
-        connect();
-        // Modify the query to include LIMIT and OFFSET for pagination
-        String query = "SELECT * FROM word_user WHERE userid = ? LIMIT ? OFFSET ?;";
+        int offset = (page - 1) * size;
+        Connection connection=null;
+        connection=connect();
+
+        String query = "SELECT w.*, wu.progress " +
+                "FROM word w " +
+                "JOIN word_user wu ON w.id = wu.wordid " +
+                "WHERE wu.userid = ? " +
+                "LIMIT ? OFFSET ?";
+
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, userId);
-        stmt.setInt(2, size);     // Limit the number of rows
-        stmt.setInt(3, offset);   // Offset to skip rows for pagination
+        stmt.setInt(2, size);
+        stmt.setInt(3, offset);
         ResultSet rs = stmt.executeQuery();
 
         ArrayList<Word> ret = new ArrayList<>();
         while (rs.next()) {
-            String wordId = rs.getString("wordid");
-            double progress = rs.getDouble("progress");
-
-            String wordQuery = "SELECT * FROM word WHERE id = ?";
-            PreparedStatement wordStmt = connection.prepareStatement(wordQuery);
-            wordStmt.setString(1, wordId);
-            ResultSet wordRs = wordStmt.executeQuery();
-            if (wordRs.next()) {
-                ret.add(new Word(
-                        wordRs.getString(1),
-                        wordRs.getString(2),
-                        wordRs.getString(3),
-                        wordRs.getString(4),
-                        wordRs.getString(5),
-                        progress
-                ));
-            }
+            ret.add(new Word(
+                    rs.getString("id"),
+                    rs.getString("actword"),
+                    rs.getString("meaning"),
+                    rs.getString("wordlang"),
+                    rs.getString("meanlang"),
+                    rs.getDouble("progress")
+            ));
         }
-        close();
+
+        close(connection);
         return ret;
     }
 
     public static String getWordMean(String actWord, String meaning, String wordLang, String meaningLang) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "select id from word where actword = '" + actWord + "' and meaning = '" + meaning + "' and wordlang = '" + wordLang + "' and meanLang = '" + meaningLang + "' ";
         PreparedStatement stmt = connection.prepareStatement(query);
         ResultSet rs = stmt.executeQuery();
         rs.next();
-        close();
+        close(connection);
         return rs.getString(1);
+    }
+
+    public static int getWordCount(String word, String wordMeaning, String wordLang, String meaningLang) {
+        int count = 0;
+        Connection connection=null;
+        connection=connect();
+        String query = "SELECT COUNT(*) FROM word WHERE " +
+                "(? IS NULL OR actword LIKE ?) " +
+                "AND (? IS NULL OR meaning LIKE ?) " +
+                "AND (? IS NULL OR wordLang = ?) " +
+                "AND (? IS NULL OR meanLang = ?)";
+
+        try {
+            word = word != null && word.isEmpty() ? null : word;
+            wordMeaning = wordMeaning != null && wordMeaning.isEmpty() ? null : wordMeaning;
+            wordLang = wordLang != null && wordLang.equals("Any") ? null : wordLang;
+            meaningLang = meaningLang != null && meaningLang.equals("Any") ? null : meaningLang;
+
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setString(1, word);
+            pstmt.setString(2, word != null ? "%" + word + "%" : null);
+            pstmt.setString(3, wordMeaning);
+            pstmt.setString(4, wordMeaning != null ? "%" + wordMeaning + "%" : null);
+            pstmt.setString(5, wordLang);
+            pstmt.setString(6, wordLang);
+            pstmt.setString(7, meaningLang);
+            pstmt.setString(8, meaningLang);
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        close(connection);
+        return count;
     }
 
     public static ArrayList<Word> searchWords(String word, String wordMeaning, String wordLang, String meaningLang, int page, int size) {
         int offset = (page - 1) * size;
         ArrayList<Word> result = new ArrayList<>();
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "SELECT * FROM word WHERE " +
                 "(? IS NULL OR actword LIKE ?) " +
                 "AND (? IS NULL OR meaning LIKE ?) " +
@@ -539,13 +595,14 @@ public class DataBase {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        close();
+        close(connection);
         return result;
     }
 
     //    lesson
     public static void addLesson(String lessonId, String date, String data, String userid) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "insert into lesson (id, date, data, userid) VALUES (?,?,?,?);";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, lessonId);
@@ -553,27 +610,29 @@ public class DataBase {
         stmt.setString(3, data);
         stmt.setString(4, userid);
         stmt.executeUpdate();
-        close();
+        close(connection);
     }
 
     public static String getLesson(String lessonId) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "select data from lesson where id = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, lessonId);
         ResultSet rs = stmt.executeQuery();
         rs.next();
-        close();
+        close(connection);
         return rs.getString(1);
     }
 
     public static void deleteLesson(String lessonId) throws SQLException {
-        connect();
+        Connection connection=null;
+        connection=connect();
         String query = "delete from lesson where id = ?;";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, lessonId);
         stmt.executeUpdate();
-        close();
+        close(connection);
     }
 
     public static void cleanUpLessonTable() {
@@ -587,9 +646,9 @@ public class DataBase {
             LocalDateTime twoHoursBefore = now.minusHours(2);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
+            Connection connection=null;
             try {
-                connect();
+                connection=connect();
                 String sql = "DELETE FROM lesson WHERE date < ?";
                 try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                     preparedStatement.setString(1, twoHoursBefore.format(formatter));
@@ -598,13 +657,13 @@ public class DataBase {
             } catch (SQLException e) {
                 e.printStackTrace();
             }finally {
-                close();
+                close(connection);
             }
             System.out.println("DataBase cleaned.");
 
             System.out.println("Decreasing all the word progresses.");
             try {
-                connect();
+                connection=connect();
                 String sql = "update word_user set progress = progress - 2 where progress >= 2 ;";
                 try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                     preparedStatement.executeUpdate();
@@ -612,7 +671,7 @@ public class DataBase {
             } catch (SQLException e) {
                 e.printStackTrace();
             }finally {
-                close();
+                close(connection);
             }
             System.out.println("All progresses updated :)");
         };
