@@ -209,8 +209,8 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 220, // Adjust the size as needed
-                      height: 220, // Adjust the size as needed
+                      width: 220,
+                      height: 220,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(

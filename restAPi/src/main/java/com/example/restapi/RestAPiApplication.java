@@ -9,7 +9,6 @@ import static com.example.restapi.DataBase.*;
 public class RestAPiApplication {
 
     public static void main(String[] args) {
-        connect();
         createTables();
         SpringApplication.run(RestAPiApplication.class, args);
         cleanUpLessonTable();

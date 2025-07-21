@@ -10,6 +10,7 @@ import '../request.dart';
 import 'lesson.dart';
 import 'gifManager.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:word_wolf/home/home.dart';
 
 class Lesson_page extends StatefulWidget {
   const Lesson_page({Key? key}) : super(key: key);
@@ -54,6 +55,16 @@ class _Lesson_pageState extends State<Lesson_page> {
       Navigator.pop(context0);
       if(!success){
         lossPopup(context0);
+      }
+
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            transitionDuration: Duration.zero,
+            pageBuilder: (_, __, ___) => const Home(),
+          ),
+        );
       }
   }
 

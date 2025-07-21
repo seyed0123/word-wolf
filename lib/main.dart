@@ -12,7 +12,6 @@ import 'package:word_wolf/words/search_word.dart';
 void main() async  {
   await dotenv.load(fileName: "assets/env.txt");
   runApp(const MyApp());
-  // SERVER_URL=https://adorable-johnna-seyed0123-a85ae44e.koyeb.app
 }
 
 class MyApp extends StatelessWidget {
@@ -54,7 +53,13 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     _startIconAnimation();
     Future.delayed(const Duration(seconds: 5), () {
-      Navigator.pushReplacementNamed(context, '/');
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/',
+              (route) => false,
+        );
+      }
     });
   }
 

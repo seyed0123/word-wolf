@@ -3,10 +3,7 @@ package com.example.restapi;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class User {
     private String id;
@@ -32,10 +29,21 @@ public class User {
         this.strikeLevel = strikeLevel;
         this.xp = xp;
         this.level = level;
-        this.strike = strike;
+
         this.PracticeToday = isPracticeToday;
-        this.isPracticeToday = isPracticeToday();
+        this.isPracticeToday = isPractice(0);
+
+        if (!isPractice(-1) && !this.isPracticeToday){
+            this.strike = 0;
+        }else{
+            this.strike = strike;
+        }
+
         this.strikeLevelName= settingStrikeLevelName();
+    }
+
+    public boolean isPracticeToday() {
+        return isPracticeToday;
     }
 
     // setters
@@ -66,7 +74,7 @@ public class User {
     public void setStrike(int strike) {
         this.strike = strike;
         DataBase.setStrike(id, strike);
-        int newStrikeLevel = (int)(Math.log(strike));
+        int newStrikeLevel = (int)(Math.log(strike) / Math.log(2));
         setStrikeLevel(newStrikeLevel);
     }
     public void setStrikeLevel(int strikeLevel) {
@@ -81,10 +89,14 @@ public class User {
     }
 
     public String settingStrikeLevelName(){
-        if (strike >= levels.size()) {
+        if (strike ==0) return levels.get(0);
+
+        int result = (int)(Math.log(strike) / Math.log(2))+1;
+
+        if (result >= levels.size()) {
             return levels.get(levels.size()-1);
         }
-        return levels.get(strike);
+        return levels.get(result);
     }
 
     // getters
@@ -115,10 +127,15 @@ public class User {
     public int getStrike() {
         return strike;
     }
-    public boolean isPracticeToday() {
+    public boolean isPractice(int day) {
         Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, day);
+        Date pastDate = calendar.getTime();
+
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
-        String dateStr = fmt.format(date);
+        String dateStr = fmt.format(pastDate);
         return PracticeToday.equals(dateStr);
     }
     public String getPracticeDate() {
