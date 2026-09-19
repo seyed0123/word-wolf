@@ -14,10 +14,28 @@ import java.util.concurrent.TimeUnit;
 
 public class DataBase {
 
+    private static String databaseUrl;
+    private static String databaseUsername;
+    private static String databasePassword;
+
+    static void configure(org.springframework.core.env.Environment environment) {
+        databaseUrl = requiredSetting(environment, "DB_URL");
+        databaseUsername = requiredSetting(environment, "DB_USERNAME");
+        databasePassword = requiredSetting(environment, "DB_PASSWORD");
+    }
+
+    private static String requiredSetting(org.springframework.core.env.Environment environment, String name) {
+        String value = environment.getProperty(name);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("Missing required database setting: " + name);
+        }
+        return value;
+    }
+
     public static Connection connect() {
         try {
             Class.forName("org.postgresql.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://185.79.97.36:8880/t", "admin", "1793p");
+            Connection connection = DriverManager.getConnection(databaseUrl, databaseUsername, databasePassword);
             System.out.println("Database connected");
             return connection;
         } catch (SQLException e) {

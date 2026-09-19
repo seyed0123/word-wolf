@@ -9,8 +9,12 @@ import static com.example.restapi.DataBase.*;
 public class RestAPiApplication {
 
     public static void main(String[] args) {
-        createTables();
-        SpringApplication.run(RestAPiApplication.class, args);
+        SpringApplication application = new SpringApplication(RestAPiApplication.class);
+        application.addInitializers(context -> {
+            DataBase.configure(context.getEnvironment());
+            createTables();
+        });
+        application.run(args);
         cleanUpLessonTable();
     }
 
