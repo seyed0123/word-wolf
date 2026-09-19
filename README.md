@@ -26,8 +26,8 @@ Unleash your inner language warrior with Word Wolf! This engaging mobile applica
 # Installation
 
 ## Prerequisites
-- Flutter SDK
-- Dart SDK 
+- Flutter SDK 3.35.7 (the version pinned for web deployment)
+- Dart SDK 3.9 or later (included with Flutter)
 - JDK 17 or later
 - Maven
 
@@ -45,6 +45,26 @@ flutter pub get
 ```shell
 flutter run
 ```
+
+## Vercel web deployment
+
+Use the repository root as the Vercel project root. `vercel.json` installs
+Flutter 3.35.7, builds in release mode, and publishes `build/web`.
+The installer uses a versioned SDK directory rather than pulling Flutter's
+development branch on every deployment.
+
+To reproduce the deployment build locally:
+
+```shell
+bash scripts/install-flutter.sh
+.flutter-sdk/3.35.7/bin/flutter build web --release
+```
+
+`google_fonts` 6.3.3 includes the fix for the `FontWeight` constant-map compiler
+error seen with newer Flutter engines. When updating dependencies, regenerate
+and commit `pubspec.lock` using the pinned SDK.
+The lockfile also updates `shared_preferences_web` to 2.3.0, which replaces
+its legacy `dart:html` import with `package:web`.
 
 ## Backend setup:
 1. Navigate to server dir
@@ -111,4 +131,3 @@ Contributions are welcome! Please feel free to submit a pull request.
 
 # License
 This project is licensed under the MIT License - see the LICENSE file for details.
-

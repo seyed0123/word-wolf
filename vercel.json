@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "bash scripts/install-flutter.sh",
+  "buildCommand": ".flutter-sdk/3.35.7/bin/flutter build web --release",
+  "outputDirectory": "build/web"
+}
