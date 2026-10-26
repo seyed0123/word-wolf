@@ -13,6 +13,7 @@ public class RestAPiApplication {
         application.addInitializers(context -> {
             DataBase.configure(context.getEnvironment());
             createTables();
+            catchUpWordProgress();
         });
         application.run(args);
         cleanUpLessonTable();

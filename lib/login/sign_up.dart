@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../app_theme.dart';
 import 'package:word_wolf/request.dart';
 import 'dart:convert';
 
@@ -11,7 +11,6 @@ class Sign_up extends StatefulWidget {
 }
 
 class _Sign_upState extends State<Sign_up> {
-
   final username = TextEditingController();
   final password = TextEditingController();
   final rePassword = TextEditingController();
@@ -19,34 +18,33 @@ class _Sign_upState extends State<Sign_up> {
   bool _isChecked = false;
   final ScrollController _scrollController = ScrollController();
 
-
-
   String error = '';
   @override
   void dispose() {
     username.dispose();
     password.dispose();
+    rePassword.dispose();
+    email.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> sendData() async {
     String err = '';
-    if(username.text.isEmpty || password.text.isEmpty|| rePassword.text.isEmpty || email.text.isEmpty){
+    if (username.text.isEmpty ||
+        password.text.isEmpty ||
+        rePassword.text.isEmpty ||
+        email.text.isEmpty) {
       err = 'All fields are required';
-    }else if (password.text != rePassword.text) {
+    } else if (password.text != rePassword.text) {
       err = 'password doesn\'t match';
-    }else if(_isChecked == false){
-      err='Agree the terms';
+    } else if (_isChecked == false) {
+      err = 'Agree the terms';
     }
-    if( err!=''){
+    if (err != '') {
       setState(() {
         error = err;
       });
-      _scrollController.animateTo(
-        0.0,
-        duration: const Duration(milliseconds:  200),
-        curve: Curves.linear,
-      );
       return;
     }
     Map<String, dynamic> user = {
@@ -124,135 +122,65 @@ class _Sign_upState extends State<Sign_up> {
         );
       }
     }
-
-  }
-  
-  Color hexToColor(String hexCode) {
-    final hexColor = hexCode;
-    return Color(int.parse('FF$hexColor', radix: 16));
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: hexToColor('749BC2'),
-        title: Center(
-          child: Text(
-            'Word Wolf',
-            style: GoogleFonts.baskervville(
-              textStyle: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w200,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    offset: const Offset(2, 2),
-                    blurRadius: 3,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                ],
-                letterSpacing: 2,
-                wordSpacing: 4,
-              ),
+  Widget build(BuildContext context) => TaskPage(
+    title: 'Create an account',
+    maxWidth: 440,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Start with a word.',
+          style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 12),
+        const Text('Build a vocabulary that belongs to you.'),
+        const SizedBox(height: 32),
+        TextField(
+          controller: username,
+          decoration: const InputDecoration(labelText: 'Username'),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: email,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(labelText: 'Email'),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: password,
+          obscureText: true,
+          decoration: const InputDecoration(labelText: 'Password'),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: rePassword,
+          obscureText: true,
+          decoration: const InputDecoration(labelText: 'Confirm password'),
+        ),
+        const SizedBox(height: 16),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          title: const Text('I agree to the terms and conditions'),
+          value: _isChecked,
+          onChanged: (value) => setState(() {
+            _isChecked = value ?? false;
+          }),
+        ),
+        if (error.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              error,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(50.0),
-          child: Column(
-            children: <Widget>[
-              Text(
-                '$error',
-                style: const TextStyle(
-                  color: Colors.redAccent,
-                  fontSize: 20,
-                ),
-              ),
-              TextField(
-                controller: username,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'username',
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              TextField(
-                obscureText: true,
-                controller: password,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'password',
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-
-              TextField(
-                obscureText: true,
-                controller: rePassword,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'enter password again',
-                ),
-              ),
-              const SizedBox(
-                  height: 25,
-                ),
-              TextField(
-                controller: email,
-                textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'email',
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Row(
-                children: <Widget>[
-                  Checkbox(
-                    value: _isChecked,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        _isChecked = value!;
-                      });
-                    },
-                  ),
-                  Text('I agree to the terms and conditions'),
-                ],
-              ),
-              const SizedBox(
-                height: 75,
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  sendData();
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-                  elevation: 5, // Shadow depth
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Rounded corners
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold, // Bold text
-                    fontSize: 16, // Text size
-                  ),
-                ),
-                child: const Text('sign up'),
-              ),
-            ],
-          ),
-        ),
-      )
-    );
-  }
+        const SizedBox(height: 16),
+        FilledButton(onPressed: sendData, child: const Text('Create account')),
+      ],
+    ),
+  );
 }

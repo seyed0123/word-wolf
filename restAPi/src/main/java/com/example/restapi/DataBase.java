@@ -109,6 +109,8 @@ public class DataBase {
             stmt.execute(createWordTable);
             stmt.execute(createWordUserTable);
             stmt.execute(createLessonTable);
+            // Existing rows begin tracking today; their historical decay date is unknown.
+            stmt.execute("ALTER TABLE word_user ADD COLUMN IF NOT EXISTS progress_updated_on DATE NOT NULL DEFAULT CURRENT_DATE");
             System.out.println("Tables created or already exist.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -643,6 +645,17 @@ public class DataBase {
         return rs.getString(1);
     }
 
+    public static String getLessonForUser(String lessonId, String userId) throws SQLException {
+        try (Connection connection = connect();
+             PreparedStatement statement = connection.prepareStatement("select data from lesson where id = ? and userid = ?")) {
+            statement.setString(1, lessonId);
+            statement.setString(2, userId);
+            try (ResultSet result = statement.executeQuery()) {
+                return result.next() ? result.getString(1) : null;
+            }
+        }
+    }
+
     public static void deleteLesson(String lessonId) throws SQLException {
         Connection connection=null;
         connection=connect();
@@ -679,33 +692,42 @@ public class DataBase {
             }
             System.out.println("DataBase cleaned.");
 
-            System.out.println("Decreasing all the word progresses.");
-            try {
-                connection=connect();
-                String sql = "update word_user set progress = progress - 2 where progress >= 2 ;";
-                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                    preparedStatement.executeUpdate();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }finally {
-                close(connection);
-            }
-            System.out.println("All progresses updated :)");
         };
 
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                catchUpWordProgress();
+            } catch (RuntimeException e) {
+                // A temporary database outage must not cancel subsequent attempts.
+                System.err.println("Word progress catch-up failed: " + e.getMessage());
+            }
+        }, 0, 1, TimeUnit.MINUTES);
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextRun = now.withHour(0).withMinute(0).withSecond(0).withNano(0);
-        if (now.compareTo(nextRun) >= 0) {
-            nextRun = nextRun.plusDays(1);
+        LocalDateTime nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay();
+        long initialDelay = now.until(nextMidnight, TimeUnit.SECONDS.toChronoUnit());
+        scheduler.scheduleAtFixedRate(task, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+    }
+
+    public static void catchUpWordProgress() {
+        try (Connection connection = connect()) {
+            catchUpWordProgress(connection);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to catch up word progress", e);
         }
-        System.out.println("NEXT run:" + nextRun);
+    }
 
-        long initialDelay = now.until(nextRun, TimeUnit.SECONDS.toChronoUnit());
-        long period = TimeUnit.DAYS.toSeconds(1);
-
-        scheduler.scheduleAtFixedRate(task, initialDelay, period, TimeUnit.SECONDS);
+    static void catchUpWordProgress(Connection connection) throws SQLException {
+        // One atomic statement updates both values, so retries/restarts cannot double-charge.
+        // PostgreSQL dates also keep inserts and catch-up on the same calendar/time zone.
+        try (PreparedStatement statement = connection.prepareStatement("""
+                UPDATE word_user
+                SET progress = GREATEST(0, progress - 2.0 * (CURRENT_DATE - progress_updated_on)),
+                    progress_updated_on = CURRENT_DATE
+                WHERE progress_updated_on < CURRENT_DATE
+                """)) {
+            statement.executeUpdate();
+        }
     }
 }

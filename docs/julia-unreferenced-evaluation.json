@@ -1,0 +1,144 @@
+{
+  "model": "SupersonicLabs/Julia-1",
+  "revision": "a85b127321d580d65176c89ced8273f305745d85",
+  "note": "Small hand-written diagnostic. Plausibility is not factual verification; scores are not calibrated.",
+  "reviews": [
+    {
+      "word": "book",
+      "target": "Persian",
+      "meaning": "کتاب",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.054
+    },
+    {
+      "word": "book",
+      "target": "Persian",
+      "meaning": "آب",
+      "correct": false,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.048
+    },
+    {
+      "word": "hello",
+      "target": "Persian",
+      "meaning": "سلام",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.039
+    },
+    {
+      "word": "hello",
+      "target": "Persian",
+      "meaning": "خداحافظ",
+      "correct": false,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "apple",
+      "target": "Persian",
+      "meaning": "سیب",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.039
+    },
+    {
+      "word": "apple",
+      "target": "Persian",
+      "meaning": "موز",
+      "correct": false,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "book",
+      "target": "German",
+      "meaning": "Buch",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "book",
+      "target": "German",
+      "meaning": "Wasser",
+      "correct": false,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "water",
+      "target": "French",
+      "meaning": "eau",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.041
+    },
+    {
+      "word": "water",
+      "target": "French",
+      "meaning": "soleil",
+      "correct": false,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "sun",
+      "target": "Spanish",
+      "meaning": "sol",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.041
+    },
+    {
+      "word": "sun",
+      "target": "Spanish",
+      "meaning": "agua",
+      "correct": false,
+      "status": "uncertain",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "book",
+      "target": "Arabic",
+      "meaning": "كتاب",
+      "correct": true,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.04
+    },
+    {
+      "word": "book",
+      "target": "Arabic",
+      "meaning": "ماء",
+      "correct": false,
+      "status": "plausible",
+      "model": "Julia-1",
+      "seconds": 0.041
+    }
+  ],
+  "lessonPlan": {
+    "modes": {
+      "0": "forward",
+      "20": "forward",
+      "40": "forward",
+      "60": "forward",
+      "80": "forward",
+      "100": "forward"
+    }
+  },
+  "lessonSeconds": 0.163
+}

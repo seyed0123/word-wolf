@@ -1,4 +1,4 @@
-class Word{
+class Word {
   String ID;
   String actualWord;
   String meaning;
@@ -6,7 +6,14 @@ class Word{
   String meaningLang;
   double progress;
 
-  Word(this.ID , this.actualWord, this.meaning, this.wordLang, this.meaningLang, this.progress);
+  Word(
+    this.ID,
+    this.actualWord,
+    this.meaning,
+    this.wordLang,
+    this.meaningLang,
+    this.progress,
+  );
 
   factory Word.fromJson(Map<String, dynamic> json) {
     return Word(
@@ -15,8 +22,7 @@ class Word{
       json['meaning'] as String,
       json['wordLang'] as String,
       json['meaningLang'] as String,
-      json['progress'] as double,
+      (json['progress'] as num).toDouble(),
     );
   }
-
 }

@@ -1,0 +1,3 @@
+include:
+  - path: compose.stack.yaml
+    env_file: restAPi/.env

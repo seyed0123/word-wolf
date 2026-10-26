@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../app_theme.dart';
 import 'package:word_wolf/request.dart';
 import 'dart:convert';
 
@@ -11,12 +11,9 @@ class login extends StatefulWidget {
 }
 
 class _loginState extends State<login> {
-
-
   final username = TextEditingController();
   final password = TextEditingController();
   String error = '';
-
 
   @override
   void dispose() {
@@ -112,115 +109,56 @@ class _loginState extends State<login> {
     }
   }
 
-  Color hexToColor(String hexCode) {
-    final hexColor = hexCode;
-    return Color(int.parse('FF$hexColor', radix: 16));
-  }
-
-    @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: hexToColor('749BC2'),
-        title: Center(
-          child: Text(
-            'Word Wolf',
-            style: GoogleFonts.baskervville(
-              textStyle: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w200,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    offset: const Offset(2, 2),
-                    blurRadius: 3,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                ],
-                letterSpacing: 2,
-                wordSpacing: 4,
-              ),
-            ),
+  @override
+  Widget build(BuildContext context) => TaskPage(
+    title: 'word wolf',
+    maxWidth: 440,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 32),
+        const Icon(Icons.menu_book_outlined, size: 48, color: forest),
+        const SizedBox(height: 24),
+        const Text(
+          'More words.\nMore possibilities.',
+          style: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
           ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(50.0),
-        child: Column(
-          children: <Widget>[
-            Text(
-                '$error',
-              style: const TextStyle(
-                color: Colors.redAccent,
-                fontSize: 20,
-              ),
-            ),
-            TextField(
-              controller: username,
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                labelText: 'username',
-              ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            TextField(
-              obscureText: true,
-              controller: password,
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                labelText: 'password',
-              ),
-            ),
-            const SizedBox(
-              height: 100,
-            ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      sendData();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-                      elevation: 5, // Shadow depth
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Rounded corners
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                      textStyle: const TextStyle(
-                        fontWeight: FontWeight.bold, // Bold text
-                        fontSize: 16, // Text size
-                      ),
-                    ),
-                    child: const Text('Login'),
-                  ),
-                  const SizedBox(width:  20),
-                  ElevatedButton(
-                      onPressed: (){Navigator.pushNamed(context, '/sign_up');},
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-                        elevation: 5, // Shadow depth
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30), // Rounded corners
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold, // Bold text
-                          fontSize: 16, // Text size
-                        ),
-                      ),
-                      child: const Text('sign_up')
-                  )
-                ],
-              ),
-            )
-          ],
+        const SizedBox(height: 16),
+        const Text('Sign in to continue your learning journey.'),
+        const SizedBox(height: 32),
+        TextField(
+          controller: username,
+          autofillHints: const [AutofillHints.username],
+          decoration: const InputDecoration(labelText: 'Username'),
         ),
-      ),
-    );
-  }
+        const SizedBox(height: 16),
+        TextField(
+          controller: password,
+          obscureText: true,
+          autofillHints: const [AutofillHints.password],
+          onSubmitted: (_) => sendData(),
+          decoration: const InputDecoration(labelText: 'Password'),
+        ),
+        if (error.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Text(
+              error,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        const SizedBox(height: 24),
+        FilledButton(onPressed: sendData, child: const Text('Sign in')),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: () => Navigator.pushNamed(context, '/sign_up'),
+          child: const Text('New here? Create an account'),
+        ),
+      ],
+    ),
+  );
 }

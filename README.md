@@ -1,7 +1,9 @@
 # Word Wolf
 
-A vocabulary learning app built with Flutter and Spring Boot. Save words and
-translations, practice them in lessons, and track your learning progress.
+A vocabulary learning app built with Flutter and Spring Boot. Save multilingual
+vocabulary, practice it in adaptive lessons, and track your progress. Optional
+local models can suggest translations, estimate their correctness, and screen
+lesson choices without sending learning data to a cloud service.
 
 <p align="center">
   <img src="shots/icon.jpg" alt="Word Wolf logo" width="280">
@@ -10,71 +12,156 @@ translations, practice them in lessons, and track your learning progress.
 ## Features
 
 - Create an account and sign in.
-- Add vocabulary with word and translation languages.
+- Add vocabulary in English, Persian, German, French, Spanish, and Arabic.
+- Suggest editable meanings locally with MADLAD-400 and review Julia-1's
+  uncalibrated correctness estimate before saving.
 - Browse your word list, search vocabulary, and discover popular words.
-- Review words and answer practice questions in lessons.
+- Practice weaker words first with review cards, forward questions, and reverse
+  recall. Julia-1 filters distractors that may also be correct answers.
 - Track experience points, levels, and daily streaks.
-- Manage your account settings.
+- Use the responsive interface on mobile, desktop, or the web.
 
 ## Explore the app
 
+### A focused start
+
+The full-height opening sequence introduces Word Wolf without delaying access to
+the learning flow.
+
+| First frame | Second frame |
+| --- | --- |
+| ![Black wolf and white wolf opening frame](shots/splash-first.png) | ![White wolf and black wolf opening frame](shots/splash-second.png) |
+
+### Access your account
+
+Create an account or return to an existing learning profile.
+
+| Sign in | Create an account |
+| --- | --- |
+| ![Word Wolf sign-in page](shots/login-1440.png) | ![Word Wolf account creation page](shots/sign-up-1440.png) |
+
 ### Your learning dashboard
 
-Track your progress, revisit saved vocabulary, and find words to learn next.
+Start a lesson, follow XP and streak progress, or jump directly to saved,
+searchable, and popular vocabulary.
 
-| Home and progress | Your vocabulary | Popular words |
-| --- | --- | --- |
-| ![Home and learning progress](shots/home.png) | ![Personal word list](shots/wordList.png) | ![Popular words](shots/popularWords.png) |
+| Desktop | Mobile |
+| --- | --- |
+| ![Word Wolf desktop dashboard](shots/dashboard-1440.png) | ![Word Wolf mobile dashboard](shots/dashboard-320.png) |
 
 ### Build your vocabulary
 
-Add words and translations, then search the vocabulary collection.
+Choose both languages, enter a word, and either write its meaning or request a
+local suggestion. The same form stays readable on narrow and wide screens.
 
-| Add a word | Search vocabulary |
-| --- | --- |
-| ![Add a word and translation](shots/newWord.png) | ![Search vocabulary](shots/search.png) |
-
-### Review and practice
-
-Review words and their translations before working through lesson questions.
-
-| Word review | Translation review |
-| --- | --- |
-| ![Review a word](shots/lessonWord1.png) | ![Review its translation](shots/lessonWord2.png) |
-
-| Practice screen 1 | Practice screen 2 | Practice screen 3 |
+| Add a word | Local suggestion | Narrow layout |
 | --- | --- | --- |
-| ![Lesson question, first example](shots/lessonQues1.png) | ![Lesson question, second example](shots/lessonQues2.png) | ![Lesson question, third example](shots/lessonQues3.png) |
+| ![Empty add-word form](shots/add-word-1440.png) | ![Local suggestion with Julia correctness estimate](shots/suggestion-1440.png) | ![Responsive add-word form with an editable Persian meaning](shots/word-form-320.png) |
 
-### Your account
+MADLAD suggestions remain editable and require an explicit save. Julia's displayed
+percentage is a model estimate, not measured accuracy; it can be confidently wrong.
 
-Create an account, sign in, and manage your settings.
+### Find and manage words
 
-| Sign in | Create an account | Settings |
+Review saved vocabulary, search the shared collection, and browse words other
+learners are practicing.
+
+| My words | Search | Popular words |
 | --- | --- | --- |
-| ![Sign in](shots/login.png) | ![Sign up](shots/signUp.png) | ![Account settings](shots/setting.png) |
+| ![Saved vocabulary and progress](shots/my-words-1440.png) | ![Vocabulary search results](shots/search-1440.png) | ![Popular vocabulary](shots/popular-words-1440.png) |
+
+### Practice a lesson
+
+Lessons begin with review cards, continue with checked questions, and save
+progress after completion.
+
+| Review | Question | Complete |
+| --- | --- | --- |
+| ![Lesson review card](shots/lesson-review-1024.png) | ![Checked lesson question](shots/lesson-1024.png) | ![Completed lesson summary](shots/lesson-complete-1024.png) |
+
+### Track your account
+
+Explore streak milestones and update account details from the dashboard.
+
+| Streak levels | Account settings |
+| --- | --- |
+| ![Streak level journey](shots/streak-levels-1440.png) | ![Account settings page](shots/settings-1440.png) |
+
+_All current page captures were produced from the live app in isolated Ungoogled
+Chromium sessions._
 
 ## How it works
 
-The Flutter client sends HTTP requests to the Spring Boot API. The API handles
-accounts, vocabulary, and lessons, and stores data in PostgreSQL through JDBC.
-Authentication uses JWT tokens.
+The Flutter client sends authenticated HTTP requests to the Spring Boot API. The
+API handles accounts, vocabulary, progress, and lessons, and stores data in
+PostgreSQL through JDBC. MADLAD-400 and Julia-1 run as private local services on
+the Docker network; only Nginx publishes a host port.
 
 | Component | Technology | Location |
 | --- | --- | --- |
 | Client | Flutter 3.35.7 / Dart 3.9 | [`lib/`](lib/) |
 | API | Spring Boot 3.3.0 / Java 17 | [`restAPi/`](restAPi/) |
 | Database | PostgreSQL | Configured in `restAPi/.env` |
-| Web deployment | Vercel | [`vercel.json`](vercel.json) |
-| API container | Docker, Maven build, Java runtime | [`restAPi/Dockerfile`](restAPi/Dockerfile) |
+| Translation model | MADLAD-400 through llama.cpp | [`deploy/ai/`](deploy/ai/) |
+| Decision model | Julia-1 | [`deploy/julia/`](deploy/julia/) |
+| Full-stack deployment | Docker Compose and Nginx | [`compose.yaml`](compose.yaml) |
+| Standalone web deployment | Vercel | [`vercel.json`](vercel.json) |
 
-### Server structure
+### C4 container diagram
 
-![Server structure diagram](shots/serverSTR.png)
+<a href="shots/c4-container.svg">
+  <img src="shots/c4-container.svg" alt="C4 container diagram for Word Wolf" width="900">
+</a>
+
+_Open the diagram for the full-size vector version._
+
+Nginx serves the Flutter build and proxies API requests. The model services and
+database stay inside the Compose network. A one-shot preparation container copies
+the mounted GGUF into a compatible Docker volume without changing the source file.
 
 ### Database structure
 
-![Database structure diagram](shots/DBSTR.png)
+```mermaid
+erDiagram
+    PERSON ||--o{ WORD_USER : learns
+    WORD ||--o{ WORD_USER : tracks
+    PERSON ||--o{ LESSON : owns
+
+    PERSON {
+        text id PK
+        text username
+        text password
+        text email
+        integer strike_level
+        integer xp
+        integer level
+        integer strike
+        text is_practice_today
+    }
+    WORD {
+        text id PK
+        text actword
+        text meaning
+        text wordlang
+        text meanLang
+    }
+    WORD_USER {
+        text wordid PK, FK
+        text userid PK, FK
+        double progress
+        date progress_updated_on
+    }
+    LESSON {
+        text id PK
+        text userid FK
+        text date
+        text data
+    }
+```
+
+Vocabulary is shared by content, while `word_user` keeps each learner's progress.
+Lessons store their generated question data until the authenticated owner submits
+the result.
 
 ## Run locally
 
@@ -194,8 +281,118 @@ bash scripts/install-flutter.sh
 The SDK is pinned to keep deployments reproducible. When changing dependencies,
 use that SDK and commit the updated `pubspec.lock` alongside `pubspec.yaml`.
 
+### Full stack with Docker Compose (no host Java or Flutter needed)
+
+The root [`compose.yaml`](compose.yaml) builds and tests both applications inside
+containers, and runs Nginx, Spring Boot, PostgreSQL, llama.cpp (MADLAD-400) and Julia-1.
+Only Nginx publishes a host port. Your existing GGUF file is mounted read-only.
+A one-shot `model-prep` container adapts its metadata and tensor names into the
+`madlad_model` volume (about 3.2 GB extra). Quantized tensor bytes are verified
+unchanged; the original file is preserved. The official tokenizer is downloaded
+once during the preparation image build.
+The Julia image downloads its pinned checkpoint during the first build; both
+models run locally without cloud inference.
+
+1. Keep your existing `restAPi/.env`, or copy `restAPi/.env.example` to it.
+2. Set `DB_USERNAME` and `DB_PASSWORD` in that file.
+3. Place your model at `~/models/madlad400-3b-mt-q8_0.gguf`, or set
+   `LOCAL_MODEL_PATH` to an absolute GGUF path in `restAPi/.env`.
+4. From the repository root, run:
+
+```bash
+docker compose up --build -d
+docker compose logs -f backend ai julia nginx
+```
+
+Open **http://localhost:8080**. Change `HTTP_PORT` in `restAPi/.env` if needed.
+The first build downloads container images and dependencies. Subsequent builds
+reuse Docker's cache. MADLAD runs locally on CPU through llama.cpp’s encoder-decoder completion executable; `LLAMA_THREADS` defaults
+to 4 and `LOCAL_AI_TIMEOUT_SECONDS` to 60. Allow model loading to finish before
+requesting a suggestion. Build and dependency downloads need network access;
+inference stays local.
+
+On **Add a word**, choose both languages, enter a word, and select **Suggest a
+meaning**. Review the suggestion and use it to populate the editable meaning
+field. Saving still asks for confirmation. Model errors do not prevent manual
+entry. MADLAD translates using the selected target language. It does not generate
+same-language definitions: choose different languages for suggestions or type a
+definition manually. Translations remain editable and require review, particularly
+for isolated words with multiple senses. See [MADLAD setup and verification](docs/madlad.md).
+
+Lessons prioritize less familiar vocabulary, review weaker words, and mix forward
+and reverse recall for practiced words. Answers come from saved vocabulary in the
+same language pair, with distinct alternatives. Small collections get two or three
+choices; when no distinct alternative exists, the word remains a review card.
+An empty collection offers an action to add the first word. Lesson generation
+works without the model.
+
+Julia-1 runs in its own CPU container (`JULIA_CPU_THREADS=4` by default). Its
+checkpoint is about 551 MiB, baked into the image with a verified SHA-256. Runtime
+uses offline model loading. No extra model file or host Python package is needed.
+
+After every MADLAD suggestion, Julia compares the original word and generated
+meaning using both selected languages. The suggestion card displays **Estimated
+correctness: N%**, calculated from Julia's probability for the “correct” option.
+No saved word or reference is required, and no saved-vocabulary lookup occurs.
+The percentage is an uncalibrated model estimate and may be confidently wrong;
+it does not automatically accept or save the meaning. If Julia is unavailable,
+the meaning remains editable and the card says its estimate is unavailable.
+[Scoring contract and evaluation](docs/julia.md).
+
+Julia also advises on practice formats for the six selected words and rejects
+candidate test options that may also be correct translations. The backend keeps
+mandatory weak-word reviews, the existing reverse-recall mix and saved answers;
+when Julia finds no safe distractor, that item becomes a review card. This is
+experimental advice; improved learning outcomes have not been established. If
+Julia is stopped or times out, suggestions remain editable and lessons use the
+existing deterministic duplicate checks.
+
+Nginx provides `SERVER_URL=/api`, so no change to `assets/env.txt` is needed.
+The Flutter build is included in the Nginx image; a host `build/web` directory is
+not required. Rebuild after source changes.
+
+Compose waits for PostgreSQL readiness and stores data in a named volume. Stop
+with `docker compose down`; data is retained. Database
+initialization settings apply only to an empty volume. Changing credentials in
+`restAPi/.env` does not update an existing database's credentials.
+
+#### Docker verification
+
+The backend Docker build runs JUnit; the frontend build runs Flutter widget tests
+before compiling the release web app. To build and exercise an isolated test stack
+(accounts, vocabulary, lessons, progress, real local inference and web serving):
+
+```bash
+bash scripts/docker-check.sh
+```
+
+This uses project `wordwolf-check` and port 18080 (`TEST_HTTP_PORT` overrides it),
+leaving the normal database volume untouched. It creates uniquely named test users.
+The script leaves the stack running for browser inspection. Stop it with:
+
+```bash
+docker compose --project-name wordwolf-check down
+```
+
+If Docker reports permission denied on `/var/run/docker.sock`, enable Docker access
+for your user before running these commands. No host Java or Flutter is required.
+
+The llama.cpp integration follows its official
+[server API](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)
+and [Docker setup](https://github.com/ggml-org/llama.cpp/blob/master/docs/docker.md).
+
 ### Backend with Docker
 
+For only the backend and database, run from `restAPi`:
+
+```bash
+docker compose up --build -d
+```
+
+That separate configuration publishes the API directly at `http://localhost:8080`
+(configurable with `BACKEND_PORT`). Run only one stack on that port at a time.
+
+To run **only the backend against an existing database**, use the standalone image.
 After configuring `restAPi/.env`, run from the repository root:
 
 ```bash
@@ -223,6 +420,20 @@ use `.flutter-sdk/3.35.7/bin/flutter` from the repository root.
 | `flutter build web --release` | Repository root | Build the web client |
 | `bash ./mvnw test` | `restAPi` | Run backend tests |
 | `bash ./mvnw package` | `restAPi` | Test and build the executable JAR |
+
+### Browser regression checks
+
+With the Docker stack running and Chromium installed:
+
+```bash
+npm install --prefix /tmp/wordwolf-browser playwright
+NODE_PATH=/tmp/wordwolf-browser/node_modules BROWSER_URL=http://localhost:8080 node scripts/browser-check.cjs
+```
+
+Set `CHROMIUM_PATH` if Chromium is not at `/usr/lib/ungoogled-chromium/chromium`.
+The runner creates a test account, exercises suggestions and learning flows, and
+writes screenshots to `/tmp/wordwolf-browser-artifacts` (`BROWSER_ARTIFACTS` overrides it).
+See [verification notes](docs/improvements.md) for results and screenshots.
 
 ## Troubleshooting
 

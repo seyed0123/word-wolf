@@ -1,57 +1,30 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:wave_loading_indicator/wave_progress.dart';
-import 'package:word_wolf/home/User.dart';
 import 'dart:math';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/material.dart';
+import 'package:word_wolf/home/User.dart';
 import 'package:word_wolf/request.dart';
+import '../app_theme.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
-
+  const Home({super.key});
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-
   User? user;
-  bool isLoading = true;
-  List<String> levels = ['Clown', 'Noob', 'Novice','Average','Sigma','Chad','Absolute Chad','Giga Chad','Absolute Giga Chad'];
-  bool isSliderOpen = false;
-
-  Future<void> getUser() async {
-    String? token = await getToken();
-    if (token == null) {
-      navigateToLogin();
-      return;
-    }
-
-    final String response = await sendGetRequest(token, 'get_user');
-    if (response.isEmpty) {
-      navigateToLogin();
-      return;
-    }
-
-    final Map<String, dynamic> data = jsonDecode(response);
-    setState(() {
-      user = User.fromJson(data);
-      isLoading = false;
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    getUser();
-  }
-
-  void navigateToLogin() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (Route<dynamic> route) => false);
-    });
-  }
+  String? error;
+  static const levels = [
+    'Clown',
+    'Noob',
+    'Novice',
+    'Average',
+    'Sigma',
+    'Chad',
+    'Absolute Chad',
+    'Giga Chad',
+    'Absolute Giga Chad',
+  ];
 
   @override
   void initState() {
@@ -59,302 +32,369 @@ class _HomeState extends State<Home> {
     getUser();
   }
 
-  Color hexToColor(String hexCode) {
-    final hexColor = hexCode;
-    return Color(int.parse('FF$hexColor', radix: 16));
+  Future<void> getUser() async {
+    try {
+      final token = await getToken();
+      if (!mounted) return;
+      if (token == null) {
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        return;
+      }
+      final response = await sendGetRequest(token, 'get_user');
+      final data = User.fromJson(jsonDecode(response));
+      if (mounted)
+        setState(() {
+          user = data;
+          error = null;
+        });
+    } catch (_) {
+      if (mounted)
+        setState(() {
+          error = 'Could not load your progress. Please try again.';
+        });
+    }
   }
 
-  Color? getRowColor() {
-    return user!.isPracticeToday ? Colors.orange : hexToColor('B4B4B8');
+  Future<void> open(String route) async {
+    await Navigator.pushNamed(context, route);
+    if (mounted) getUser();
   }
 
-  ButtonStyle buttonStyle = ElevatedButton.styleFrom(
-    foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-    elevation: 5, // Shadow depth
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30), // Rounded corners
+  void showLevels() => showModalBottomSheet(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (context) => SafeArea(
+      child: SizedBox(
+        height: MediaQuery.sizeOf(context).height * .7,
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Text(
+              'Your streak journey',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 16),
+            ...levels.asMap().entries.map(
+              (entry) => ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage('assets/${entry.value}.jpg'),
+                ),
+                title: Text(entry.value),
+                subtitle: Text('${pow(2, entry.key - 1).floor()}+ days'),
+                trailing: user?.strikeLevelName == entry.value
+                    ? const Icon(Icons.check_circle, color: forest)
+                    : null,
+              ),
+            ),
+          ],
+        ),
+      ),
     ),
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-    textStyle: const TextStyle(
-      fontWeight: FontWeight.bold, // Bold text
-      fontSize: 16, // Text size
+  );
+
+  Widget destination(
+    IconData icon,
+    String title,
+    String subtitle,
+    String route,
+  ) => Card(
+    child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      leading: Icon(icon, color: forest),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.arrow_forward, size: 20),
+      onTap: () => open(route),
     ),
   );
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        backgroundColor: hexToColor('E1F0DA'),
-        body: Center(
-          child: WaveProgress(
-            borderSize: 3.0,
-            size: 180,
-            borderColor: Colors.redAccent,
-            foregroundWaveColor: Colors.greenAccent,
-            backgroundWaveColor: Colors.blueAccent,
-            progress: 30, // [0-100]
-            innerPadding: 10, // padding between border and waves
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
-      backgroundColor: hexToColor('E1F0DA'),
       appBar: AppBar(
-        toolbarHeight: 120,
-        backgroundColor: hexToColor('749BC2'),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Word Wolf',
-              style: GoogleFonts.baskervville(
-                textStyle: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w200,
-                  color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      offset: Offset(2, 2),
-                      blurRadius: 3,
-                      color: Colors.black.withOpacity(0.5),
-                    ),
-                  ],
-                  letterSpacing: 2,
-                  wordSpacing: 4,
-                ),
-              ),
-            ),
-            CircularPercentIndicator(
-              radius: 35.0,
-              lineWidth: 5.0,
-              animation: true,
-              percent: user!.xp / pow(10, user!.level as num),
-              header: Text(
-                'Level',
-                style: GoogleFonts.gabriela(color: Colors.white),
-              ),
-              center: Text(
-                '${user!.level}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                  color: Colors.white,
-                ),
-              ),
-              footer: Text(
-                '${user!.xp}/${pow(10, user!.level as num)}',
-                style: const TextStyle(
-                  fontSize: 10.0,
-                  color: Colors.white,
-                ),
-              ),
-              circularStrokeCap: CircularStrokeCap.round,
-              progressColor: hexToColor('3F72AF'),
-            ),
-            Flexible(
-              child: Text(
-                user!.username,
-                style: GoogleFonts.gabriela(
-                  textStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${user!.strike}',
-                  style: GoogleFonts.qahiri(
-                    textStyle: TextStyle(color: getRowColor(), letterSpacing: .5),
-                  ),
-                ),
-                // const SizedBox(
-                //   width: 5,
-                // ),
-                user!.isPracticeToday
-                    ? Icon(
-                  Icons.local_fire_department_rounded,
-                  color: getRowColor(),
-                )
-                    : Icon(
-                  Icons.local_fire_department_outlined,
-                  color: getRowColor(),
-                ),
-              ],
-            ),
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    isSliderOpen = !isSliderOpen;
-                  });
-                }
-                ,icon:const Icon(Icons.more_vert) )
-          ],
+        title: const Text(
+          'word wolf',
+          style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -.8),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Account settings',
+            onPressed: () => open('/setting'),
+            icon: const Icon(Icons.settings_outlined),
+          ),
+          const SizedBox(width: 12),
+        ],
       ),
-      body: Stack(
-        children: [
-          Column(
-          children: [
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: user == null
+          ? Center(
+              child: error == null
+                  ? const CircularProgressIndicator()
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(error!, textAlign: TextAlign.center),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: getUser,
+                          child: const Text('Try again'),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/login'),
+                          child: const Text('Sign in'),
+                        ),
+                      ],
+                    ),
+            )
+          : SafeArea(
+              child: RefreshIndicator(
+                onRefresh: getUser,
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
                   children: [
-                    Container(
-                      width: 220,
-                      height: 220,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [hexToColor('6FDCE3'), hexToColor('FAFFAF')],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2), // Shadow color
-                            spreadRadius: 5, // Spread radius
-                            blurRadius: 15, // Blur radius
-                            offset: const Offset(0, 5), // Shadow offset
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0), // Padding between the border and the avatar
-                        child: CircleAvatar(
-                          radius: 100, // Adjust the radius as needed
-                          backgroundImage: AssetImage('assets/${user!.strikeLevelName}.jpg'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      user!.strikeLevelName,
-                      style: GoogleFonts.jaldi(
-                        textStyle: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-              color: hexToColor('E1F0DA'),
-              child: Wrap(
-                spacing: 10.0,
-                runSpacing: 10.0,
-                alignment: WrapAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/new_word').then((_) {
-                        getUser();
-                      });
-                    },
-                    style: buttonStyle,
-                    child: const Text("New Word"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/lesson');
-                    },
-                    style: buttonStyle,
-                    child: const Text("Lesson"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/word_list').then((_) {
-                        getUser();
-                      });
-                    },
-                    style: buttonStyle,
-                    child: const Text("Word List"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/popular_word');
-                    },
-                    style: buttonStyle,
-                    child: const Text("Popular Word"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/setting');
-                    },
-                    style: buttonStyle,
-                    child: const Text("Setting"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/search');
-                    },
-                    style: buttonStyle,
-                    child: const Text("Search"),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            right: isSliderOpen ? 0 : -300,
-            top: 0,
-            bottom: 0,
-            child: Container(
-              width: 300,
-              color: hexToColor("FFECC8"),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: levels.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    String level = entry.value;
-
-                    return Container(
-                      margin: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: hexToColor("B7E0FF"),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1040),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundImage: AssetImage('assets/$level.jpg'),
+                            const SizedBox(height: 16),
+                            Text(
+                              'YOUR DAILY PRACTICE',
+                              style: TextStyle(
+                                color: forest,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.8,
                               ),
                             ),
-                            Flexible(
-                              child: Text(
-                                '$level-> +${pow(2,index-1).floor()} Day', // Include the index here
-                                style: const TextStyle(fontSize: 24, color: Colors.black),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Welcome back, ${user!.username}.',
+                              style: const TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w700,
+                                height: 1.15,
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'Small steps today. More words for your world.',
+                              style: TextStyle(fontSize: 17),
+                            ),
+                            if (error != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Text(error!),
+                              ),
+                            const SizedBox(height: 32),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final practice = Container(
+                                  padding: const EdgeInsets.all(28),
+                                  decoration: BoxDecoration(
+                                    color: forest,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(
+                                        Icons.school_outlined,
+                                        color: Color(0xFFD6E7B5),
+                                        size: 32,
+                                      ),
+                                      const SizedBox(height: 24),
+                                      Text(
+                                        user!.isPracticeToday
+                                            ? 'Keep your momentum.'
+                                            : 'A few words. A fresh start.',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 27,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        'Review your vocabulary, then test what you remember. Your less familiar words come first.',
+                                        style: TextStyle(
+                                          color: Color(0xFFE1E9DF),
+                                          height: 1.6,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                      FilledButton.icon(
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: const Color(
+                                            0xFFD6E7B5,
+                                          ),
+                                          foregroundColor: ink,
+                                        ),
+                                        onPressed: () => open('/lesson'),
+                                        icon: const Icon(Icons.arrow_forward),
+                                        label: const Text('Start a lesson'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                final progress = Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(24),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 28,
+                                              backgroundImage: AssetImage(
+                                                'assets/${user!.strikeLevelName}.jpg',
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    user!.strikeLevelName,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                    ),
+                                                  ),
+                                                  Text('Level ${user!.level}'),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 24),
+                                        Text(
+                                          '${user!.xp} XP',
+                                          style: const TextStyle(
+                                            fontSize: 30,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        LinearProgressIndicator(
+                                          value:
+                                              (user!.xp / pow(10, user!.level))
+                                                  .clamp(0.0, 1.0),
+                                          minHeight: 8,
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '${pow(10, user!.level).toInt()} XP to the next level',
+                                        ),
+                                        const Divider(height: 32),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons
+                                                  .local_fire_department_outlined,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.secondary,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                '${user!.strike}-day streak · ${user!.isPracticeToday ? "Practiced today" : "Let’s practice"}',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        TextButton(
+                                          onPressed: showLevels,
+                                          child: const Text(
+                                            'Explore streak levels',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                                return constraints.maxWidth < 760
+                                    ? Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          practice,
+                                          const SizedBox(height: 20),
+                                          progress,
+                                        ],
+                                      )
+                                    : Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(flex: 3, child: practice),
+                                          const SizedBox(width: 24),
+                                          Expanded(flex: 2, child: progress),
+                                        ],
+                                      );
+                              },
+                            ),
+                            const SizedBox(height: 36),
+                            Row(
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    'Build your vocabulary',
+                                    style: TextStyle(
+                                      fontSize: 23,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () => open('/new_word'),
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Add word'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            destination(
+                              Icons.book_outlined,
+                              'My words',
+                              'Revisit your collection and track each word.',
+                              '/word_list',
+                            ),
+                            const SizedBox(height: 12),
+                            destination(
+                              Icons.search,
+                              'Find a word',
+                              'Search by word, meaning, or language.',
+                              '/search',
+                            ),
+                            const SizedBox(height: 12),
+                            destination(
+                              Icons.explore_outlined,
+                              'Popular words',
+                              'Discover what other learners are saving.',
+                              '/popular_word',
+                            ),
+                            const SizedBox(height: 24),
                           ],
                         ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ],
                 ),
+              ),
             ),
-          ),
-        ),]
-      ),
     );
   }
-
 }

@@ -8,128 +8,47 @@ import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.example.restapi.DataBase.getWordCount;
 import static com.example.restapi.jsonWT.verifyToken;
 
 @RestController
 public class LessonApi {
+    private final LocalDecisionService decisions;
 
-    public static List<Word> selectRandomWords(List<Word> userWords, int numberOfWords) {
-        List<Word> selectedWords = new ArrayList<>();
-        Random random = new Random();
-
-        numberOfWords = Math.min(numberOfWords, userWords.size());
-
-        // Calculate the total weight
-        double totalWeight = 0;
-        for (Word word : userWords) {
-            totalWeight += getWeight(word);
-        }
-
-        // Select words based on their weights
-        for (int i = 0; i < numberOfWords; i++) {
-            double r = random.nextDouble() * totalWeight;
-            double cumulativeWeight = 0;
-            for (Word word : userWords) {
-                cumulativeWeight += getWeight(word);
-                if (r <= cumulativeWeight) {
-                    selectedWords.add(word);
-                    totalWeight -= getWeight(word); // Decrease the total weight by the weight of the selected word
-                    userWords.remove(word); // Remove the selected word to avoid duplicates
-                    break;
-                }
-            }
-        }
-
-        return selectedWords;
+    public LessonApi(LocalDecisionService decisions) {
+        this.decisions = decisions;
     }
 
-    private static double getWeight(Word word) {
-        // Define your weighting mechanism
-        if (word.getProgress() < 50) {
-            return 10; // High weight for low progress
-        } else {
-            return 1;  // Low weight for high progress
-        }
+
+    public static List<Word> selectRandomWords(List<Word> words, int count) {
+        return LessonGenerator.selectWords(words, count, new Random());
     }
 
     @GetMapping("/new_lesson")
     public String newLesson(@RequestHeader(value = "Authorization") String token) throws JsonProcessingException {
-        DecodedJWT jwt = verifyToken(token);
-        String userId = jwt.getClaim("userid").asString();
-        Date expireDate = jwt.getClaim("expiredate").asDate();
+        String userId = verifyToken(token).getClaim("userid").asString();
         try {
-            List<Word> userWords = DataBase.getWords(userId,1,500);
+            List<Word> userWords = DataBase.getWords(userId, 1, 500);
+            List<Word> pool = new ArrayList<>(userWords);
+            Set<String> pairs = new HashSet<>();
+            for (Word word : userWords) {
+                if (pairs.add(word.getWordLang() + ":" + word.getMeaningLang())) {
+                    pool.addAll(DataBase.searchWords("", "", word.getWordLang(), word.getMeaningLang(), 1, 200));
+                }
+            }
             Random random = new Random();
-            int questionWithoutShow = random.nextInt(3);
-            int WordNumber = 4 + questionWithoutShow;
-            Collections.shuffle(userWords);
-//            select words
-            List<Word> QWords = selectRandomWords(userWords,WordNumber);
-            List<Word> questionWithoutShowWords = new ArrayList<>(QWords);
-
-            for (int i = 0; i < questionWithoutShow; i++) {
-                int raInd = random.nextInt(QWords.size());
-                QWords.remove(raInd);
+            List<Word> selected = LessonGenerator.selectWords(userWords, 6, random);
+            Lesson lesson = LessonGenerator.generateSelected(selected, pool, random, decisions.lessonPlan(selected));
+            decisions.filterLessonOptions(lesson, selected);
+            String data = new ObjectMapper().writeValueAsString(lesson);
+            if (!lesson.getWords().isEmpty()) {
+                DataBase.addLesson(lesson.getId(), LocalDateTime.now().format(
+                        DateTimeFormatter.ofPattern("yyyyMMddHHmmss")), data, userId);
             }
-
-            List<Question> questions = new ArrayList<>();
-            Hashtable<String,ArrayList<Word>> word_list_cache = new Hashtable<>();
-
-            for (Word questionWithoutShowWord : questionWithoutShowWords) {
-                // select 3 wrong answers
-                HashSet<Integer> chossen = new HashSet<>();
-                ArrayList<String> answers = new ArrayList<>();
-                ArrayList<Word> ans_option = null;
-                if (!word_list_cache.containsKey(questionWithoutShowWord.getMeaningLang()))
-                {
-                    int totalWords = getWordCount("", "", "Any", questionWithoutShowWord.getMeaningLang());
-                    int size = 200;
-                    int totalPages = (int) Math.ceil((double) totalWords / size);
-                    int randomPage = new Random().nextInt(totalPages) + 1;
-
-                    ans_option = DataBase.searchWords("", "", "Any", questionWithoutShowWord.getMeaningLang(), randomPage, size);
-                    word_list_cache.put(questionWithoutShowWord.getMeaningLang(),ans_option);
-                }else{
-                    ans_option = word_list_cache.get(questionWithoutShowWord.getMeaningLang());
-                }
-                ans_option.removeIf(word ->
-                        word.getMeaning().trim().equals(questionWithoutShowWord.getMeaning().trim())
-                );
-
-                if (ans_option.size()<=3){
-                    continue;
-                }
-                int correctAnsIndex = random.nextInt(4);
-                for (int j = 0; j < 4; j++) {
-                    if (j == correctAnsIndex) {
-                        answers.add(questionWithoutShowWord.getMeaning());
-                    } else {
-                        int rand = (random.nextInt(ans_option.size()));
-                        if (rand != correctAnsIndex && !chossen.contains(rand)) {
-                            chossen.add(rand);
-                            answers.add(ans_option.get(rand).getMeaning());
-                        } else j--;
-                    }
-                }
-                questions.add(new Question("What is meaning of \"" + questionWithoutShowWord.getActualWord() + "\" ?", answers, correctAnsIndex,questionWithoutShowWord.getID()));
-            }
-
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-            String formattedDateTime = now.format(formatter);
-            String id = UUID.randomUUID().toString();
-            Lesson lesson = new Lesson(id,questions,QWords);
-            ObjectMapper objectMapper = new ObjectMapper();
-            String data = objectMapper.writeValueAsString(lesson);
-
-            DataBase.addLesson(id,formattedDateTime,data,userId);
             return data;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -165,9 +84,16 @@ public class LessonApi {
             ansList.add(ansArray.getBoolean(i));
         }
         ObjectMapper objectMapper = new ObjectMapper();
-        Lesson lesson = objectMapper.readValue(DataBase.getLesson(lessonId), Lesson.class);
+        String saved = DataBase.getLessonForUser(lessonId, userId);
+        if (saved == null) throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Lesson not found.");
+        Lesson lesson = objectMapper.readValue(saved, Lesson.class);
 
         List<Question> questions = lesson.getQuestions();
+        if (ansList.size() > questions.size() || (success && ansList.size() != questions.size())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Answers do not match the lesson.");
+        }
         User user = DataBase.getUserByID(userId);
 
         // update strike level

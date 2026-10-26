@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../app_theme.dart';
 import 'package:word_wolf/home/User.dart';
 import 'package:word_wolf/request.dart';
 
@@ -21,22 +21,33 @@ class _SettingState extends State<Setting> {
   late TextEditingController oldPass = TextEditingController();
   late TextEditingController newPass = TextEditingController();
 
+  String? loadError;
   Future<void> getUser() async {
-    String? token = await getToken();
-    if (token == null) {
-      return;
-    }
-
-    final String response = await sendGetRequest(token, 'get_user');
-
-    final Map<String, dynamic> data = jsonDecode(response);
     setState(() {
-      user = User.fromJson(data);
-      isLoading = false;
-      username.text = user.username;
-      email.text = user.email;
+      isLoading = true;
+      loadError = null;
     });
-
+    try {
+      final token = await getToken();
+      if (token == null) throw Exception();
+      final response = await sendGetRequest(token, 'get_user');
+      if (!mounted) return;
+      setState(() {
+        user = User.fromJson(jsonDecode(response));
+        username.text = user.username;
+        email.text = user.email;
+      });
+    } catch (_) {
+      if (mounted)
+        setState(() {
+          loadError = 'Could not load your account.';
+        });
+    } finally {
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
+    }
   }
 
   Future<void> submitChanges() async {
@@ -44,7 +55,7 @@ class _SettingState extends State<Setting> {
       'username': username.text,
       'oldPassword': oldPass.text,
       'newPassword': newPass.text,
-      'email':email.text
+      'email': email.text,
     };
 
     String? token = await getToken();
@@ -67,7 +78,6 @@ class _SettingState extends State<Setting> {
                     child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop();
-
                     },
                   ),
                 ],
@@ -126,7 +136,11 @@ class _SettingState extends State<Setting> {
 
   void navigateToLogin() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (Route<dynamic> route) => false);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/login',
+        (Route<dynamic> route) => false,
+      );
     });
   }
 
@@ -145,176 +159,80 @@ class _SettingState extends State<Setting> {
     super.initState();
   }
 
-  ButtonStyle buttonStyle = ElevatedButton.styleFrom(
-    foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-    elevation: 5, // Shadow depth
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30), // Rounded corners
-    ),
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-    textStyle: const TextStyle(
-      fontWeight: FontWeight.bold, // Bold text
-      fontSize: 16, // Text size
-    ),
-  );
-  Color hexToColor(String hexCode) {
-    final hexColor = hexCode;
-    return Color(int.parse('FF$hexColor', radix: 16));
-  }
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: hexToColor('749BC2'),
-        title: Center(
-          child: Text(
-            'Word Wolf',
-            style: GoogleFonts.baskervville(
-              textStyle: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w200,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    offset: const Offset(2, 2),
-                    blurRadius: 3,
-                    color: Colors.black.withOpacity(0.5),
-                  ),
-                ],
-                letterSpacing: 2,
-                wordSpacing: 4,
+  Widget build(BuildContext context) => TaskPage(
+    title: 'Account settings',
+    child: isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : loadError != null
+        ? Column(
+            children: [
+              Text(loadError!),
+              TextButton(onPressed: getUser, child: const Text('Try again')),
+              TextButton(onPressed: logout, child: const Text('Sign out')),
+            ],
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Make yourself at home.',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700),
               ),
-            ),
-          ),
-        ),
-      ),
-      body: Wrap(
-            spacing: 10.0,
-          runSpacing: 10.0,
-          alignment: WrapAlignment.center,
-          children:[
-            Column(
-                children: [
-                GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    padding: EdgeInsets.all(10),
-                    childAspectRatio: 2,
-                  children: [
-                      Center(
-                        child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: username,
-                          cursorColor: Colors.blueAccent,
-                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                            borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                            borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                          ),
-                          labelText: 'username',
-                          labelStyle: const TextStyle(color: Colors.blueAccent),
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          prefixIcon: const Icon(Icons.person, color: Colors.blueAccent),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: email,
-                          cursorColor: Colors.blueAccent,
-                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                            ),
-                            labelText: 'email',
-                            labelStyle: const TextStyle(color: Colors.blueAccent),
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            prefixIcon: const Icon(Icons.email, color: Colors.blueAccent),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: newPass,
-                          obscureText: true,
-                          cursorColor: Colors.blueAccent,
-                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                            ),
-                            labelText: 'new pass',
-                            labelStyle: const TextStyle(color: Colors.blueAccent),
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            prefixIcon: const Icon(Icons.password_outlined, color: Colors.blueAccent),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: oldPass,
-                          obscureText: true,
-                          cursorColor: Colors.blueAccent,
-                          style: const TextStyle(fontSize:  18.0, color: Colors.black),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                              borderSide: const BorderSide(color: Colors.blueAccent, width:  2.0),
-                            ),
-                            labelText: 'old pass',
-                            labelStyle: const TextStyle(color: Colors.blueAccent),
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            prefixIcon: const Icon(Icons.password_outlined, color: Colors.blueAccent),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ]
+              const SizedBox(height: 12),
+              const Text('Update your profile or change your password.'),
+              const SizedBox(height: 32),
+              TextField(
+                controller: username,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                  prefixIcon: Icon(Icons.person_outline),
                 ),
-              ],
-            ),
-            ElevatedButton(onPressed: (){submitChanges();}, style:buttonStyle , child: const Text('Submit Changes')),
-            ElevatedButton(onPressed: (){logout();}, style:buttonStyle , child: const Text('logout')),
-          ],
-      )
-    );
-  }
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.mail_outline),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Change password',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Leave these fields empty to keep your current password.',
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: oldPass,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Current password',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: newPass,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'New password'),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: submitChanges,
+                child: const Text('Save changes'),
+              ),
+              const SizedBox(height: 16),
+              TextButton.icon(
+                onPressed: logout,
+                icon: const Icon(Icons.logout),
+                label: const Text('Sign out'),
+              ),
+            ],
+          ),
+  );
 }

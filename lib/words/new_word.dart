@@ -1,324 +1,376 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../app_theme.dart';
 import '../request.dart';
+import 'language_label.dart';
 
 class new_word extends StatefulWidget {
-  const new_word({Key? key}) : super(key: key);
-
+  const new_word({super.key});
   @override
   State<new_word> createState() => _NewWordState();
 }
 
 class _NewWordState extends State<new_word> {
   final wordController = TextEditingController();
-  final wordMeaningController = TextEditingController();
-  String dropdownValue = 'English';
-  String dropdownValueMeaning = 'English';
-  final List<String> dropdownOptions = ['English', 'Persian', 'German', 'French', 'Spanish', 'Arabic'];
-  String error = '';
-  bool ok = false;
+  final meaningController = TextEditingController();
+  String from = 'English';
+  String to = 'English';
+  static const languages = [
+    'English',
+    'Persian',
+    'German',
+    'French',
+    'Spanish',
+    'Arabic',
+  ];
+  bool suggesting = false;
+  bool saving = false;
+  String? message;
+  String? suggestion;
+  double? correctnessProbability;
+
+  String get reviewMessage => correctnessProbability == null
+      ? 'Julia correctness estimate is unavailable. You can still use or edit this meaning.'
+      : 'Estimated correctness: ${(correctnessProbability! * 100).toStringAsFixed(1)}%';
+  bool failed = false;
 
   @override
   void dispose() {
     wordController.dispose();
-    wordMeaningController.dispose();
+    meaningController.dispose();
     super.dispose();
   }
 
-  void sendData(BuildContext context) {
-    String err = '';
-    if (wordController.text.isEmpty || wordMeaningController.text.isEmpty) {
-      err = 'All fields are required';
-    }
-    if (err.isNotEmpty) {
+  Future<void> suggest() async {
+    final word = wordController.text.trim();
+    if (word.isEmpty) {
       setState(() {
-        error = err;
+        message = 'Enter a word first.';
+        failed = true;
       });
       return;
     }
-    showAlertDialog(context, wordController.text, wordMeaningController.text);
-  }
-
-  Future<void> verify(bool flag, BuildContext context) async {
-    if (flag) {
-      Map<String, dynamic> wordJ = {
-        'word': wordController.text,
-        'wordMeaning': wordMeaningController.text,
-        'wordLang': dropdownValue,
-        'meaningLang': dropdownValueMeaning
-      };
-      String? token = await getToken();
-      try {
-        final response = await sendRequest(token!, jsonEncode(wordJ), 'add_word');
-        Map<String, dynamic> responseData = jsonDecode(response);
-        String message = responseData['message'] ?? '';
-
-        if (message == 'ok') {
-          if (mounted) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Word Added Successfully'),
-                  content: const Text('New word added!'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-            setState(() {
-              wordController.text = '';
-              wordMeaningController.text = '';
-              dropdownValue  = 'English';
-              dropdownValueMeaning = 'English';
-              ok = false;
-            });
-          }
-        } else {
-          showErrorDialog(context, 'Word Adding Failed', message);
-        }
-      } catch (e) {
-        showErrorDialog(context, 'Error', 'An error occurred: $e');
+    if (from == to) {
+      setState(() {
+        message =
+            'Choose different languages for translation, or type a definition below.';
+        failed = true;
+      });
+      return;
+    }
+    final source = from;
+    final target = to;
+    setState(() {
+      suggesting = true;
+      correctnessProbability = null;
+      suggestion = null;
+      message = null;
+    });
+    try {
+      final token = await getToken();
+      if (token == null) throw Exception('Sign in again.');
+      final response = await sendRequest(
+        token,
+        jsonEncode({'word': word, 'wordLang': source, 'meaningLang': target}),
+        'suggest_meaning',
+      ).timeout(const Duration(seconds: 140));
+      if (!mounted) return;
+      // Ignore an old response if the vocabulary or language changed during inference.
+      if (wordController.text.trim() == word &&
+          from == source &&
+          to == target) {
+        setState(() {
+          final data = jsonDecode(response) as Map<String, dynamic>;
+          suggestion = data['meaning'] as String;
+          final review = data['review'];
+          final probability = review is Map
+              ? review['correctnessProbability']
+              : null;
+          correctnessProbability =
+              review is Map &&
+                  review['status'] == 'scored' &&
+                  probability is num &&
+                  probability.isFinite &&
+                  probability >= 0 &&
+                  probability <= 1
+              ? probability.toDouble()
+              : null;
+        });
       }
+    } catch (_) {
+      if (mounted)
+        setState(() {
+          failed = true;
+          message =
+              'Local suggestions are unavailable. You can still type a meaning below.';
+        });
+    } finally {
+      if (mounted)
+        setState(() {
+          suggesting = false;
+        });
     }
   }
 
-  void showAlertDialog(BuildContext context, String word, String meaning) {
-    Widget okButton = TextButton(
-      child: const Text("Yes"),
-      onPressed: () {
-        Navigator.of(context).pop();  // Close the confirmation dialog
-        verify(true, context);
-      },
-    );
-    Widget noButton = TextButton(
-      child: const Text("No"),
-      onPressed: () {
-        Navigator.of(context).pop();  // Close the confirmation dialog
-        verify(false, context);
-      },
-    );
-
-    AlertDialog alert = AlertDialog(
-      title: const Text("Do you confirm the word meaning?"),
-      content: Text(
-        '$word: $meaning',
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
+  Future<void> save() async {
+    if (wordController.text.trim().isEmpty ||
+        meaningController.text.trim().isEmpty) {
+      setState(() {
+        message = 'Enter both a word and its meaning.';
+        failed = true;
+      });
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Save this word?'),
+        content: Text(
+          '${wordController.text.trim()} — ${meaningController.text.trim()}',
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep editing'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Save word'),
+          ),
+        ],
       ),
-      actions: [
-        noButton,
-        okButton,
-      ],
     );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
+    if (confirmed != true || !mounted) return;
+    setState(() {
+      saving = true;
+      message = null;
+    });
+    try {
+      final token = await getToken();
+      if (token == null) throw Exception('Sign in again.');
+      final response = await sendRequest(
+        token,
+        jsonEncode({
+          'word': wordController.text.trim(),
+          'wordMeaning': meaningController.text.trim(),
+          'wordLang': from,
+          'meaningLang': to,
+        }),
+        'add_word',
+      );
+      if (jsonDecode(response)['message'] != 'ok')
+        throw Exception('Could not save word.');
+      if (!mounted) return;
+      setState(() {
+        wordController.clear();
+        meaningController.clear();
+        suggestion = null;
+        failed = false;
+        message = 'Word saved. Ready for your next discovery.';
+      });
+    } catch (_) {
+      if (mounted)
+        setState(() {
+          failed = true;
+          message = 'Could not save your word. Please try again.';
+        });
+    } finally {
+      if (mounted)
+        setState(() {
+          saving = false;
+        });
+    }
   }
 
-  void showErrorDialog(BuildContext context, String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-  Color hexToColor(String hexCode) {
-    final hexColor = hexCode;
-    return Color(int.parse('FF$hexColor', radix: 16));
-  }
+  Widget language(
+    String label,
+    String value,
+    ValueChanged<String?> onChanged,
+  ) => DropdownButtonFormField<String>(
+    initialValue: value,
+    decoration: InputDecoration(labelText: label),
+    isExpanded: true,
+    items: languages
+        .map(
+          (language) =>
+              DropdownMenuItem(value: language, child: LanguageLabel(language)),
+        )
+        .toList(),
+    onChanged: saving ? null : onChanged,
+  );
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: hexToColor('749BC2'),
-        title: Center(
-          child: Text(
-            'Word Wolf',
-            style: GoogleFonts.baskervville(
-              textStyle: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w200,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    offset: const Offset(2, 2),
-                    blurRadius: 3,
-                    color: Colors.black.withOpacity(0.5),
+  Widget build(BuildContext context) => TaskPage(
+    title: 'Add a word',
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'A new word.\nA little more possibility.',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Keep the words you want to remember. Make their meanings your own.',
+        ),
+        const SizedBox(height: 32),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final fields = [
+              language(
+                'Word language',
+                from,
+                (value) => setState(() {
+                  from = value!;
+                  suggestion = null;
+                }),
+              ),
+              language(
+                'Meaning language',
+                to,
+                (value) => setState(() {
+                  to = value!;
+                  suggestion = null;
+                }),
+              ),
+            ];
+            return constraints.maxWidth < 450
+                ? Column(
+                    children: [
+                      fields[0],
+                      const SizedBox(height: 16),
+                      fields[1],
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: fields[0]),
+                      const SizedBox(width: 16),
+                      Expanded(child: fields[1]),
+                    ],
+                  );
+          },
+        ),
+        const SizedBox(height: 24),
+        TextField(
+          controller: wordController,
+          enabled: !saving,
+          maxLength: 200,
+          onChanged: (_) {
+            if (suggestion != null)
+              setState(() {
+                suggestion = null;
+              });
+          },
+          decoration: const InputDecoration(
+            labelText: 'Word or phrase',
+            hintText: 'What did you discover?',
+          ),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: suggesting || saving ? null : suggest,
+          icon: suggesting
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.auto_awesome_outlined),
+          label: Text(
+            suggesting ? 'Translating and checking…' : 'Suggest a meaning',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Translated locally with MADLAD. Check the meaning before saving.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (suggestion != null) ...[
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'SUGGESTED MEANING',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SelectableText(
+                    suggestion!,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(height: 12),
+                  Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      reviewMessage,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  if (correctnessProbability != null) ...[
+                    const SizedBox(height: 4),
+                    const Text('Julia-1 model estimate; can be wrong.'),
+                  ],
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: saving
+                        ? null
+                        : () => setState(() {
+                            meaningController.text = suggestion!;
+                            suggestion = null;
+                          }),
+                    icon: const Icon(Icons.south),
+                    label: const Text('Use this meaning'),
                   ),
                 ],
-                letterSpacing: 2,
-                wordSpacing: 4,
               ),
             ),
           ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(50.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Text(
-                  'Add new word',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                  ),
-                ),
-                Text(
-                  error,
-                  style: const TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 20,
-                  ),
-                ),
-                TextField(
-                  controller: wordController,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'word',
-                  ),
-                ),
-                const SizedBox(height: 25),
-                const Row(
-                  children: [
-                    Text('This word belongs to which language?'),
-                  ],
-                ),
-                DropdownButton<String>(
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                  isExpanded: true,
-                  value: dropdownValue,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 100,
-                  style: const TextStyle(color: Colors.black),
-                  underline: Container(
-                    height: 1,
-                    color: Colors.black45,
-                  ),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValue = newValue!;
-                    });
-                  },
-                  items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 10, // Adjust the radius as needed
-                            backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
-                          ),
-                          const SizedBox(width: 10),
-                          Text(value),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 40),
-                TextField(
-                  controller: wordMeaningController,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    labelText: 'word meaning',
-                  ),
-                ),
-                const SizedBox(height: 25),
-                const SingleChildScrollView(
-                  child: Row(
-                    children: [
-                      Text('Word\'s meaning belongs to which language?'),
-                    ],
-                  ),
-                ),
-                DropdownButton<String>(
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                  isExpanded: true,
-                  value: dropdownValueMeaning,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 100,
-                  style: const TextStyle(color: Colors.black),
-                  underline: Container(
-                    height: 1,
-                    color: Colors.black45,
-                  ),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValueMeaning = newValue!;
-                    });
-                  },
-                  items: dropdownOptions.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 10, // Adjust the radius as needed
-                            backgroundImage: AssetImage('assets/flag_of_$value.png'), // Replace with your asset path
-                          ),
-                          const SizedBox(width: 10),
-                          Text(value),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 40),
-                ElevatedButton(
-                  onPressed: () {
-                    sendData(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.blue, // Text color
-                    elevation: 5, // Shadow depth
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30), // Rounded corners
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Button padding
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold, // Bold text
-                      fontSize: 16, // Text size
-                    ),
-                  ),
-                  child: const Text('Add word'),
-                ),
-              ],
-            ),
+        ],
+        const SizedBox(height: 24),
+        TextField(
+          controller: meaningController,
+          enabled: !saving,
+          minLines: 2,
+          maxLines: 5,
+          maxLength: 1000,
+          decoration: const InputDecoration(
+            labelText: 'Meaning',
+            hintText: 'Write or edit the translation',
           ),
         ),
-      ),
-    );
-  }
+        if (message != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                message!,
+                style: TextStyle(
+                  color: failed ? Theme.of(context).colorScheme.error : forest,
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: saving ? null : save,
+          icon: const Icon(Icons.add),
+          label: Text(saving ? 'Saving…' : 'Save word'),
+        ),
+      ],
+    ),
+  );
 }

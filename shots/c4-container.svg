@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1580" viewBox="0 0 1200 1580" role="img" aria-labelledby="title desc">
+  <title id="title">Word Wolf C4 container diagram</title>
+  <desc id="desc">A learner uses the Flutter and Nginx web app, which calls the Spring Boot API. The API uses PostgreSQL, MADLAD, and Julia. A preparation container copies the host model into a Docker volume for MADLAD.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#26332e"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #1f2d27; }
+      .boundary-title { font: 700 25px Arial, sans-serif; fill: #1f2d27; }
+      .name { font: 700 24px Arial, sans-serif; fill: #fff; text-anchor: middle; }
+      .type { font: 18px Arial, sans-serif; fill: #fff; text-anchor: middle; }
+      .detail { font: 18px Arial, sans-serif; fill: #fff; text-anchor: middle; }
+      .relation { font: 18px Arial, sans-serif; fill: #26332e; text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }
+      .box { fill: #2874a6; stroke: #17445f; stroke-width: 3; rx: 10; }
+      .person { fill: #176b87; stroke: #0d4659; stroke-width: 3; rx: 10; }
+      .external { fill: #707b7c; stroke: #424949; stroke-width: 3; rx: 10; }
+      .boundary { fill: #f7faf8; stroke: #52635b; stroke-width: 3; stroke-dasharray: 10 8; rx: 16; }
+      .line { fill: none; stroke: #26332e; stroke-width: 3; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1200" height="1580" fill="#fff"/>
+  <text class="title" x="600" y="48" text-anchor="middle">Word Wolf — C4 container diagram</text>
+
+  <rect class="person" x="400" y="82" width="400" height="115"/>
+  <text class="name" x="600" y="122">Learner</text>
+  <text class="type" x="600" y="150">[Person]</text>
+  <text class="detail" x="600" y="178">Learns and practices vocabulary</text>
+
+  <rect class="boundary" x="45" y="270" width="1110" height="1080"/>
+  <text class="boundary-title" x="75" y="310">Word Wolf</text>
+
+  <rect class="box" x="350" y="345" width="500" height="130"/>
+  <text class="name" x="600" y="382">Web app</text>
+  <text class="type" x="600" y="412">[Container: Flutter Web + Nginx]</text>
+  <text class="detail" x="600" y="445">Serves the UI and proxies /api</text>
+
+  <rect class="box" x="350" y="555" width="500" height="130"/>
+  <text class="name" x="600" y="592">Application API</text>
+  <text class="type" x="600" y="622">[Container: Java 17 + Spring Boot]</text>
+  <text class="detail" x="600" y="655">Runs accounts, words, progress, and lessons</text>
+
+  <rect class="box" x="90" y="800" width="310" height="145"/>
+  <text class="name" x="245" y="837">Database</text>
+  <text class="type" x="245" y="867">[Container: PostgreSQL 15]</text>
+  <text class="detail" x="245" y="900">Stores learning data</text>
+
+  <rect class="box" x="445" y="800" width="310" height="145"/>
+  <text class="name" x="600" y="837">Translator</text>
+  <text class="type" x="600" y="867">[Container: MADLAD-400]</text>
+  <text class="detail" x="600" y="900">Suggests translations</text>
+
+  <rect class="box" x="800" y="800" width="310" height="145"/>
+  <text class="name" x="955" y="837">Decision model</text>
+  <text class="type" x="955" y="867">[Container: Julia-1]</text>
+  <text class="detail" x="955" y="900">Scores and checks choices</text>
+
+  <rect class="box" x="175" y="1110" width="350" height="145"/>
+  <text class="name" x="350" y="1147">Model preparation</text>
+  <text class="type" x="350" y="1177">[Container: Python]</text>
+  <text class="detail" x="350" y="1210">Validates and prepares GGUF</text>
+
+  <rect class="box" x="675" y="1110" width="350" height="145"/>
+  <text class="name" x="850" y="1147">Model volume</text>
+  <text class="type" x="850" y="1177">[Container: Docker volume]</text>
+  <text class="detail" x="850" y="1210">Stores the prepared model</text>
+
+  <rect class="external" x="400" y="1430" width="400" height="115"/>
+  <text class="name" x="600" y="1470">Host model file</text>
+  <text class="type" x="600" y="1500">[External system: GGUF]</text>
+  <text class="detail" x="600" y="1530">Mounted read-only</text>
+
+  <path class="line" d="M600 197 L600 340"/>
+  <text class="relation" x="660" y="240">Uses · HTTP/HTTPS</text>
+
+  <path class="line" d="M600 475 L600 550"/>
+  <text class="relation" x="720" y="520">Calls · JSON/HTTP</text>
+
+  <path class="line" d="M510 685 L270 795"/>
+  <text class="relation" x="330" y="735">Reads/writes · JDBC</text>
+
+  <path class="line" d="M600 685 L600 795"/>
+  <text class="relation" x="708" y="745">Requests translations</text>
+
+  <path class="line" d="M690 685 L930 795"/>
+  <text class="relation" x="870" y="735">Requests decisions</text>
+
+  <path class="line" d="M600 1430 L365 1260"/>
+  <text class="relation" x="410" y="1365">Mounts read-only</text>
+
+  <path class="line" d="M525 1182 L670 1182"/>
+  <text class="relation" x="600" y="1165">Writes verified model</text>
+
+  <path class="line" d="M850 1110 L650 950"/>
+  <text class="relation" x="825" y="1025">Loads model</text>
+</svg>

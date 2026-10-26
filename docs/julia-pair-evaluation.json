@@ -1,0 +1,158 @@
+{
+  "model": "SupersonicLabs/Julia-1",
+  "revision": "a85b127321d580d65176c89ced8273f305745d85",
+  "note": "Direct word-meaning pair scoring. P(correct) is an uncalibrated model estimate, not measured factual accuracy.",
+  "reviews": [
+    {
+      "word": "book",
+      "target": "Persian",
+      "meaning": "کتاب",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9997588639588586,
+      "model": "Julia-1",
+      "seconds": 0.193
+    },
+    {
+      "word": "book",
+      "target": "Persian",
+      "meaning": "آب",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9998302054685229,
+      "model": "Julia-1",
+      "seconds": 0.112
+    },
+    {
+      "word": "hello",
+      "target": "Persian",
+      "meaning": "سلام",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9999638893153224,
+      "model": "Julia-1",
+      "seconds": 0.113
+    },
+    {
+      "word": "hello",
+      "target": "Persian",
+      "meaning": "خداحافظ",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9999940033519895,
+      "model": "Julia-1",
+      "seconds": 0.113
+    },
+    {
+      "word": "apple",
+      "target": "Persian",
+      "meaning": "سیب",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9992644970443572,
+      "model": "Julia-1",
+      "seconds": 0.113
+    },
+    {
+      "word": "apple",
+      "target": "Persian",
+      "meaning": "موز",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9999296265953672,
+      "model": "Julia-1",
+      "seconds": 0.079
+    },
+    {
+      "word": "book",
+      "target": "German",
+      "meaning": "Buch",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9999402042488703,
+      "model": "Julia-1",
+      "seconds": 0.079
+    },
+    {
+      "word": "book",
+      "target": "German",
+      "meaning": "Wasser",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9999964399223106,
+      "model": "Julia-1",
+      "seconds": 0.069
+    },
+    {
+      "word": "water",
+      "target": "French",
+      "meaning": "eau",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9999610737272422,
+      "model": "Julia-1",
+      "seconds": 0.081
+    },
+    {
+      "word": "water",
+      "target": "French",
+      "meaning": "soleil",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9999514308321044,
+      "model": "Julia-1",
+      "seconds": 0.069
+    },
+    {
+      "word": "sun",
+      "target": "Spanish",
+      "meaning": "sol",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9999799484890847,
+      "model": "Julia-1",
+      "seconds": 0.069
+    },
+    {
+      "word": "sun",
+      "target": "Spanish",
+      "meaning": "agua",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9999949583255523,
+      "model": "Julia-1",
+      "seconds": 0.069
+    },
+    {
+      "word": "book",
+      "target": "Arabic",
+      "meaning": "كتاب",
+      "correct": true,
+      "status": "scored",
+      "correctnessProbability": 0.9999683341092166,
+      "model": "Julia-1",
+      "seconds": 0.128
+    },
+    {
+      "word": "book",
+      "target": "Arabic",
+      "meaning": "ماء",
+      "correct": false,
+      "status": "scored",
+      "correctnessProbability": 0.9990827577520158,
+      "model": "Julia-1",
+      "seconds": 0.106
+    }
+  ],
+  "lessonPlan": {
+    "modes": {
+      "0": "review",
+      "20": "review",
+      "40": "review",
+      "60": "review",
+      "80": "review",
+      "100": "review"
+    }
+  },
+  "lessonSeconds": 0.44
+}

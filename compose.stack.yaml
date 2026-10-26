@@ -1,0 +1,80 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-wordwolf}
+      POSTGRES_USER: ${DB_USERNAME:?Set DB_USERNAME in restAPi/.env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in restAPi/.env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./restAPi
+    restart: unless-stopped
+    environment:
+      LOCAL_AI_URL: http://ai:8080
+      LOCAL_DECISION_URL: http://julia:8080
+      LOCAL_AI_TIMEOUT_SECONDS: ${LOCAL_AI_TIMEOUT_SECONDS:-60}
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-wordwolf}
+      DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME in restAPi/.env}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in restAPi/.env}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  model-prep:
+    build:
+      context: ./deploy/model-prep
+    volumes:
+      - type: bind
+        source: ${LOCAL_MODEL_PATH:-${HOME}/models/madlad400-3b-mt-q8_0.gguf}
+        target: /input/model.gguf
+        read_only: true
+        bind:
+          create_host_path: false
+      - madlad_model:/output
+
+  ai:
+    build:
+      context: ./deploy/ai
+    restart: unless-stopped
+    environment:
+      LLAMA_THREADS: ${LLAMA_THREADS:-4}
+    volumes:
+      - madlad_model:/models:ro
+    depends_on:
+      model-prep:
+        condition: service_completed_successfully
+
+  julia:
+    build:
+      context: ./deploy/julia
+    restart: unless-stopped
+    environment:
+      JULIA_CPU_THREADS: ${JULIA_CPU_THREADS:-4}
+    mem_limit: 3g
+
+  nginx:
+    build:
+      context: .
+      dockerfile: deploy/frontend.Dockerfile
+      args:
+        PUB_HOSTED_URL: ${PUB_HOSTED_URL:-https://mirror-flutter.runflare.com}
+        FLUTTER_STORAGE_BASE_URL: ${FLUTTER_STORAGE_BASE_URL:-https://mirror-gcs.runflare.com}
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+    depends_on:
+      - backend
+
+volumes:
+  madlad_model:
+  postgres_data:
